@@ -1,9 +1,16 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/java
 {
-	"name": "Java",
+	"name": "Javaa",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+	// "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+    "dockerComposeFile": ["../../docker-compose.yml"],
+    "service": "backend",
+	
+	//this means the container will continue running even when it is not the active devcontainer in VSCode.
+    //this should allow such things as communicating with the backend running app while the frontend is active
+    "shutdownAction": "none",
+    "workspaceFolder": "/workspace/backend",
 
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
@@ -34,7 +41,7 @@
 		}
 	},
 
-	"runArgs": ["--env-file",".devcontainer/devcontainer.env"]
+	// "runArgs": ["--env-file",".devcontainer/devcontainer.env"]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

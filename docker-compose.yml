@@ -1,0 +1,20 @@
+version: '3'
+services:
+  backend:
+    image: mcr.microsoft.com/devcontainers/java:1-21-bullseye
+    volumes: 
+    # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: sleep infinity
+    links:
+      - frontend
+    env_file:
+      - path: ./backend/.devcontainer/devcontainer.env
+      # - path: ./.devcontainer/backend-container/devcontainer.env
+
+  frontend:
+    image: mcr.microsoft.com/devcontainers/javascript-node:1-22-bullseye
+    volumes:
+      # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: sleep infinity

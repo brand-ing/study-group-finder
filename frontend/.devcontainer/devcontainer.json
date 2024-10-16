@@ -1,0 +1,111 @@
+//adapted from https://github.com/qdm12/reactdevcontainer
+// MIT License
+// Copyright (c) 2019 Quentin McGaw
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
+{
+	"name": "React-Node.js",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	// "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bullseye",
+    "dockerComposeFile": ["../../docker-compose.yml"],
+    "service": "frontend",
+
+    //this means the container will continue running even when it is not the active devcontainer in VSCode.
+    //this should allow such things as communicating with the backend running app while the frontend is active
+    "shutdownAction": "none",  
+    "workspaceFolder": "/workspace/frontend",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "yarn install",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+
+	"customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint", // ESLint
+                "esbenp.prettier-vscode", // Prettier code formatter
+                "bierner.color-info", // JSX and CSS color information
+                "jpoissonnier.vscode-styled-components", // Styled components
+                "visualstudioexptteam.vscodeintellicode", // AI-assisted development
+                // "eg2.vscode-npm-script", // NPM support for VS code
+                "christian-kohler.npm-intellisense", // Autocompletes npm modules in import statements
+                "cssho.vscode-svgviewer", // SVG viewer
+                "eamodio.gitlens", // IDE Git information
+                "ms-azuretools.vscode-docker", // Docker integration and linting
+                "shardulm94.trailing-spaces", // Show trailing spaces
+                "davidanson.vscode-markdownlint",
+                "IBM.output-colorizer", // Colorize your output/test logs
+                "Gruntfuggly.todo-tree", // Highlights TODO comments
+                "bierner.emojisense", // Emoji sense for markdown
+                "stkb.rewrap", // rewrap comments after n characters on one line
+                "vscode-icons-team.vscode-icons", // Better file extension icons
+                "github.vscode-pull-request-github" // Github interaction
+                // "JakeWilson.vscode-cdnjs", // Search and embed libraries from cdnjs.com
+                // "alefragnani.Bookmarks",
+                // "quicktype.quicktype", // Paste JSON as code
+                // "spikespaz.vscode-smoothtype", // smooth cursor animation
+            ],
+            "settings": {
+                "files.eol": "\n",
+                // "editor.tabSize": 2,
+                "remote.extensionKind": {
+                    "ms-azuretools.vscode-docker": "workspace"
+                },
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.eslint": true
+                },
+                "eslint.validate": [
+                    "javascript",
+                    "javascriptreact",
+                    "typescript",
+                    "typescriptreact"
+                ],
+                "editor.formatOnSave": true,
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "[javascriptreact]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "[typescript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "[typescriptreact]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "prettier-eslint.eslintIntegration": true
+            }
+        }
+    }
+}
