@@ -18,3 +18,5 @@ services:
       # Mount the root folder that contains .git
       - .:/workspace:cached
     command: sleep infinity
+    env_file: 
+      - path: ./frontend/.devcontainer/devcontainer.env

@@ -38,11 +38,14 @@
 				"vscjava.vscode-spring-initializr",
 				"vscjava.vscode-java-test"
 			]
-		}
-	},
-
-	// "runArgs": ["--env-file",".devcontainer/devcontainer.env"]
-
+		},
+        "settings" : {
+                "java.gradle.buildServer.enabled": false,
+                "java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
+                "java.import.gradle.java.home" : "/usr/lib/jvm/msopenjdk-current"
+        }
+	}
+    
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 

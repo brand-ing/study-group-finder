@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
+import java.util.List;
 
 
 
@@ -19,29 +20,34 @@ public class CRUDController {
         this.crudService = crudService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/createCRUD")
     public String createCRUD(@RequestBody CRUD crud) throws InterruptedException, ExecutionException {
         return crudService.createCRUD(crud);
     }
 
-    @GetMapping("/get")
+    @GetMapping("/api/getCRUD")
     public CRUD getCRUD(@RequestParam String document_id) throws InterruptedException, ExecutionException {
         return crudService.getCRUD(document_id);
     }
 
-    @GetMapping("/update")
+    @GetMapping("/api/updateCRUD")
     public String updateCRUD(@RequestBody CRUD crud) throws InterruptedException, ExecutionException {
         return crudService.updateCRUD(crud);
     }
     
-    @GetMapping("/delete")
+    @GetMapping("/api/deleteCRUD")
     public String deleteCRUD(@RequestParam String document_id) throws InterruptedException, ExecutionException {
         return crudService.deleteCRUD(document_id);
     }
 
-    @GetMapping("/test")
+    @GetMapping("/api/testCRUD")
     public ResponseEntity<String> testGetEndpoint() {
         return ResponseEntity.ok("Test Get Endpoint is Working");
+    }
+
+    @GetMapping("/api/getCRUDList")
+    public List<CRUD> getCRUDList() throws InterruptedException, ExecutionException {
+        return crudService.getCRUDList();
     }
     
 }
