@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from './firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
+import bcrypt from 'bcryptjs';
 
 import NavigateButton from './NavigateButton';
 
@@ -17,16 +18,25 @@ const Register = () => {
   const [message, setMessage] = useState('');
   const [error, setErrors] = useState({});
 
+
   const handleRegister = async () => {
     try {
+      // Generate a salt and hash the password before storing it
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+  
+      // Create the user with Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+  
+      // Store the user data along with the hashed password in Firestore
       await setDoc(doc(db, 'Users', user.uid), {
         uid: user.uid,
         first_name: firstName,
         last_name: lastName,
         email_address: email,
         phone_number: phoneNumber,
+        password: hashedPassword, // Store the hashed password securely
       });
       
       setMessage('Registration successful!');
@@ -36,9 +46,11 @@ const Register = () => {
       setPhoneNumber('');
       setPassword('');
     } catch (error) {
+      console.error('Error registering user:', error);
       setMessage('An error occurred. Please try again later.');
     }
   };
+  
   
   const [passwordValid, setPasswordValid] = useState({
   minLength: false,
