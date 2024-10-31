@@ -4,7 +4,6 @@ import Login from './components/Login';
 import Register from './components/Register';
 import './components/styles.css';
 import LandingPage from './components/LandingPage';
-import SocialButtons from './components/SocialButtons';
 
 function App() {
   return (

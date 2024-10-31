@@ -68,8 +68,6 @@ const Register = () => {
           setEmail('');
           setPhoneNumber('');
           setPassword('');
-          // Optionally, redirect to another page
-          // window.location.href = '/login'; // or use history.push('/login') with React Router
       } else {
           // Handle server errors
           const errorData = await response.json();
@@ -80,56 +78,71 @@ const Register = () => {
   }
 };
 
-  return (
-    <div>
+return (
+  <div>
       <div className="title-container">
-        <a href="/">
-          <h1 className='title-long'>looking for group?</h1>
-        </a>
+          <a href="/">
+              <h1 className='title-long'>looking for group?</h1>
+          </a>
       </div>
-    <div className="container dark-mode">
-      <form onSubmit={handleSubmit}>
-        <h2>Register</h2>
-        {error && <p className="error">{error}</p>}
-        <input
-          type="text"
-          placeholder="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="phone number"
-          placeholder="phone number"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Register</button>
-        {message && <p>{message}</p>}
-      </form>
-      <p>By signing up you agree to our Terms of Use and Privacy Policy</p>
-      <NavigateButton label="Already have an account? Sign In" target="/login" />
+      <div className="container dark-mode">
+          <form onSubmit={handleSubmit}>
+              <h2>Register</h2>
+              {message && <p className="message">{message}</p>}
+              <input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  style={{ borderColor: error.firstName ? 'red' : '' }}
+              />
+              {error.firstName && <p className="error">{error.firstName}</p>}
 
-    </div>
-    </div>
-  );
+              <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  style={{ borderColor: error.lastName ? 'red' : '' }}
+              />
+              {error.lastName && <p className="error">{error.lastName}</p>}
+
+              <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ borderColor: error.email ? 'red' : '' }}
+              />
+              {error.email && <p className="error">{error.email}</p>}
+
+              <input
+                  type="text"
+                  placeholder="Phone Number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  style={{ borderColor: error.phoneNumber ? 'red' : '' }}
+              />
+              {error.phoneNumber && <p className="error">{error.phoneNumber}</p>}
+
+              <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ borderColor: error.password ? 'red' : '' }}
+              />
+              {error.password && <p className="error">{error.password}</p>}
+
+              <button type="submit">Register</button>
+          </form>
+          <p>By signing up you agree to our Terms of Use and Privacy Policy</p>
+          <NavigateButton label="Already have an account? Sign In" target="/login" />
+      </div>
+  </div>
+);
 };
+
+
 
 export default Register;
