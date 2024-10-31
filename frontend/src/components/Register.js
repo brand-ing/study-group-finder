@@ -17,12 +17,10 @@ const Register = () => {
   const [message, setMessage] = useState('');
   const [error, setErrors] = useState({});
 
-  const handleRegister = async (email, password) => {
+  const handleRegister = async () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log(user);
-      // Add user data to Firestore with the new syntax
       await setDoc(doc(db, 'Users', user.uid), {
         uid: user.uid,
         first_name: firstName,
@@ -30,11 +28,63 @@ const Register = () => {
         email_address: email,
         phone_number: phoneNumber,
       });
+      
+      setMessage('Registration successful!');
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setPhoneNumber('');
+      setPassword('');
     } catch (error) {
       setMessage('An error occurred. Please try again later.');
     }
   };
   
+  const [passwordValid, setPasswordValid] = useState({
+  minLength: false,
+  hasUpperCase: false,
+  hasLowerCase: false,
+  hasNumber: false,
+  hasSpecialChar: false,
+});
+
+const validatePassword = (password) => {
+  setPasswordValid({
+    minLength: password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(password),
+    hasLowerCase: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSpecialChar: /[!@#$%^&*]/.test(password),
+  });
+};
+
+const handlePasswordChange = (e) => {
+  const value = e.target.value;
+  setPassword(value);
+  validatePassword(value);
+};
+
+const handlePhoneNumber = (e) => {
+  const value = e.target.value;
+  const formattedInputValue = getFormattedInputValue(value);
+  setPhoneNumber(formattedInputValue);
+  
+
+}
+const getFormattedInputValue = value => {
+  const digits = value.replace(/\D/g, "").slice(0, 10);
+  let res = '';
+  if (digits.length > 0){
+    res = `${digits.slice(0, 3)}`;
+  }
+  if(digits.length >= 4){
+    res = `(${res})${digits.slice(3,6)}`;
+  }
+  if(digits.length >= 7){
+    res += `-${digits.slice(6)}`;
+  }
+  return res
+}
   const handleSubmit = async(e) => {
     e.preventDefault();
     // reset errors
@@ -49,33 +99,7 @@ const Register = () => {
 
     if (Object.keys(newErrors).length > 0) return;
 
-    // Simulate an API call to register the user
-    try {
-        const response = await fetch('/api/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ firstName, email, password }),
-        });
-
-        if (response.ok) {
-          setMessage('Registration successful!');
-          // Clear the fields
-          handleRegister(email, password);
-          setFirstName('');
-          setLastName('');
-          setEmail('');
-          setPhoneNumber('');
-          setPassword('');
-      } else {
-          // Handle server errors
-          const errorData = await response.json();
-          setMessage(errorData.message || 'Registration failed.');
-      }
-  } catch (error) {
-      setMessage('An error occurred. Please try again later.');
-  }
+    handleRegister();
 };
 
 return (
@@ -117,10 +141,10 @@ return (
               {error.email && <p className="error">{error.email}</p>}
 
               <input
-                  type="text"
+                  type="tel"
                   placeholder="Phone Number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={handlePhoneNumber}
                   style={{ borderColor: error.phoneNumber ? 'red' : '' }}
               />
               {error.phoneNumber && <p className="error">{error.phoneNumber}</p>}
@@ -129,10 +153,18 @@ return (
                   type="password"
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ borderColor: error.password ? 'red' : '' }}
-              />
+                  onChange={handlePasswordChange}
+                  style={{ borderColor: Object.values(passwordValid).includes(false) ? 'red' : 'green' }}
+                  />
+                  <p>Forgot?</p>
               {error.password && <p className="error">{error.password}</p>}
+              <div className="password-checker">
+                <p>{passwordValid.minLength ? '✔️' : '❌'} Minimum 8 characters</p>
+                <p>{passwordValid.hasUpperCase ? '✔️' : '❌'} At least one uppercase letter</p>
+                <p>{passwordValid.hasLowerCase ? '✔️' : '❌'} At least one lowercase letter</p>
+                <p>{passwordValid.hasNumber ? '✔️' : '❌'} At least one number</p>
+                <p>{passwordValid.hasSpecialChar ? '✔️' : '❌'} At least one special character</p>
+            </div>
 
               <button type="submit">Register</button>
           </form>
@@ -142,7 +174,6 @@ return (
   </div>
 );
 };
-
 
 
 export default Register;
