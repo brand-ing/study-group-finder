@@ -31,7 +31,7 @@ const LandingPage = () => {
                 <h2 className="cta-statement"> GET YOUR A-Team Together TODAY </h2>
                 <button onClick={() => navigate('/register')} className="register-btn">Sign Up</button>
             <footer>
-                <p>Footer here.</p>
+                <p>© 2024 Panther Pals</p>
             </footer>
         </div>
     );

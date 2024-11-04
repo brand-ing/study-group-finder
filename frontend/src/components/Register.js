@@ -5,6 +5,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
 
 import NavigateButton from './NavigateButton';
+import PhoneNumberInput from './PhoneNumberInput';
 
 
 
@@ -76,27 +77,11 @@ const handlePasswordChange = (e) => {
   validatePassword(value);
 };
 
-const handlePhoneNumber = (e) => {
-  const value = e.target.value;
-  const formattedInputValue = getFormattedInputValue(value);
-  setPhoneNumber(formattedInputValue);
-  
 
-}
-const getFormattedInputValue = value => {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-  let res = '';
-  if (digits.length > 0){
-    res = `${digits.slice(0, 3)}`;
-  }
-  if(digits.length >= 4){
-    res = `(${res})${digits.slice(3,6)}`;
-  }
-  if(digits.length >= 7){
-    res += `-${digits.slice(6)}`;
-  }
-  return res
-}
+const handlePhoneNumberChange = (formattedPhoneNumber) => {
+  setPhoneNumber(formattedPhoneNumber);
+};
+
   const handleSubmit = async(e) => {
     e.preventDefault();
     // reset errors
@@ -152,11 +137,9 @@ return (
               />
               {error.email && <p className="error">{error.email}</p>}
 
-              <input
-                  type="tel"
-                  placeholder="Phone Number"
+              <PhoneNumberInput
                   value={phoneNumber}
-                  onChange={handlePhoneNumber}
+                  onChange={handlePhoneNumberChange}
                   style={{ borderColor: error.phoneNumber ? 'red' : '' }}
               />
               {error.phoneNumber && <p className="error">{error.phoneNumber}</p>}

@@ -109,29 +109,88 @@ h2,body {
 }
 
 /* Area 1: Friends Sidebar */
-.sidebar {
-  padding: 20px;
-  background-color: black;
-  color: white;
+.sidebar.friends {
+  width: 60px;
+  background-color: #f0f0f0;
+  border-right: 1px solid #ddd;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
 }
 
-/* Friends Sidebar styling */
-.friends {
-  width: 15%;
+.sidebar.friends.expanded {
+  width: 200px;
+}
+
+.sidebar.friends .sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 10px;
+  margin-bottom: 10px;
+}
+
+.sidebar.friends .search-bar {
+  width: 80%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.sidebar.friends .search-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 5px;
+}
+
+.sidebar.friends .toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 5px;
+}
+
+/* Adjusted Friend List */
+.friend-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .friend-circle {
   width: 40px;
   height: 40px;
-  background-color: grey;
+  background-color: #ccc;
   border-radius: 50%;
-  margin: 10px 0;
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.friend-circle.add-new {
+  background-color: #4CAF50;
+  color: white;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.friend-circle.add-new:hover {
+  background-color: #45a049;
 }
 
 /* Area 2: Main Chat Area */
 .main-content {
-  width: 70%;
-  background-color: purple;
+  width: 100%;
+  background-color: #333333;
   color: white;
   display: flex;
   flex-direction: column;
@@ -170,16 +229,104 @@ h2,body {
 }
 
 /* Area 3: Notifications Sidebar */
-.notifications {
-  width: 15%;
+.notification-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #666;
+  margin-left: auto;
+  transition: background-color 0.3s;
 }
 
-.notification-box {
-  width: 100%;
-  height: 80px;
-  background-color: grey;
-  margin: 10px 0;
+.notification-btn:hover {
+  background-color: #f0f0f0;
 }
+/* Dashboard layout adjustments */
+.dashboard-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1em;
+  gap: 0.5em;
+}
+
+/* Profile Box Styling */
+.profile-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align items to the left */
+  padding: 10px; /* Add padding for spacing */
+  cursor: pointer; /* Change cursor to pointer */
+  margin-top: auto; /* Push it to the bottom */
+}
+
+/* Profile Icon and Username */
+.profile-icon {
+  display: flex;
+  align-items: center;
+}
+
+.username {
+  margin-left: 10px; /* Space between icon and username */
+}
+
+/* Dropdown Menu Styling */
+.dropdown {
+  position: absolute; /* Position it below the profile box */
+  bottom: 50px; /* Adjust based on your layout */
+  left: 0; /* Align to the left */
+  background-color: white; /* Background for dropdown */
+  border: 1px solid #ccc; /* Optional border */
+  border-radius: 4px; /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for dropdown */
+  z-index: 100; /* Ensure dropdown is on top */
+}
+
+/* Dropdown Button Styling */
+.dropdown button {
+  width: 100%; /* Full width buttons */
+  padding: 8px; /* Padding for buttons */
+  border: none; /* Remove border */
+  background: none; /* No background */
+  text-align: left; /* Align text to the left */
+  cursor: pointer; /* Pointer cursor */
+}
+
+/* Button Hover Effect */
+.dropdown button:hover {
+  background-color: #f0f0f0; /* Light gray on hover */
+}
+
+
+/* Dropdown Menu */
+.dropdown {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  background-color: #333;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  padding: 10px;
+}
+
+.dropdown button {
+  background: none;
+  border: none;
+  color: white;
+  padding: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.dropdown button:hover {
+  background-color: #444;
+}
+
 
 
 /*Landing Page */ 
