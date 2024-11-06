@@ -1,0 +1,27 @@
+/* src/components/SocialButtons.css */
+.social-buttons {
+    display: flex; /* Aligns items in a row */
+    justify-content: center; /* Centers buttons horizontally */
+    gap: 50px; /* Space between buttons */
+    margin: 20px 0; /* Adds vertical margin */
+  }
+  
+  .social-button {
+    display: flex; /* Allows the icon and text to align correctly */
+    align-items: center; /* Vertically centers the icon and text */
+    padding: 10px 15px; /* Adds padding around the button */
+    border: 1px solid black; /* Black border */
+    background-color: transparent; /* Makes background transparent */
+    cursor: pointer; /* Changes cursor to pointer */
+    font-size: 16px; /* Increases font size */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+  }
+  
+  .social-button:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Light background on hover */
+  }
+  
+  .social-button svg {
+    margin-right: 5px; /* Space between icon and text */
+  }
+  

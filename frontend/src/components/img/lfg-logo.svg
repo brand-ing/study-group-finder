@@ -1,0 +1,6 @@
+<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+    <rect width="48" height="48" rx="6.22" ry="6.22" transform="matrix(3.934496 0 0 2.103907 55.572096 99.506232)" fill="#050810"/>
+    <text font-family="Roboto" font-size="65" fill="#fff8f8" transform="translate(85 175)">
+        LFG
+    </text>
+</svg>
