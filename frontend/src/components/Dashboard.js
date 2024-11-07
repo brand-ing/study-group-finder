@@ -67,7 +67,7 @@ const Dashboard = () => {
           <div className="friend-circle add-new">+</div>
         </div>
 
-                {/* Profile Box */}
+        {/* Profile Box */}
         <div className="profile-box" onClick={() => setShowDropdown(!showDropdown)}>
           <div className="profile-info">
             {/* <span className="username">{username}</span> */}
