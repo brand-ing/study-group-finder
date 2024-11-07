@@ -414,3 +414,123 @@ nav ul li:hover {
 .feature-container p {
   color: #666; /* Medium gray color for description */
 }
+
+
+
+
+/* ProfileSettings.css */
+
+.profile-settings {
+  width: 80%;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-settings h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.profile-section {
+  margin-bottom: 20px;
+}
+
+.profile-section h3 {
+  color: #555;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.profile-picture-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-picture {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.profile-picture-container input[type="file"] {
+  font-size: 0.9rem;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.notification-settings-button {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  color: #007bff;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.notification-settings-button:hover {
+  text-decoration: underline;
+}
+
+.save-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  color: #fff;
+  background-color: #28a745;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #218838;
+}
+
+.discard-button {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+
+.discard-button:hover {
+  background-color: #c82333;
+}
+
+.back-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 0.9em;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}

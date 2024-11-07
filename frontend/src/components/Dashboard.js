@@ -9,7 +9,7 @@ import './styles.css';
 
 const Dashboard = () => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [username, setUsername] = useState("User"); // Placeholder until dynamically set
+  const [username] = useState("User"); // Placeholder until dynamically set add setUsername
   const [showNotifications, setShowNotifications] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Sidebar collapse state
   const navigate = useNavigate();
@@ -24,7 +24,12 @@ const Dashboard = () => {
   };
 
   const goToProfileSettings = () => {
-    navigate('/profile-settings');
+    try {
+      navigate('/profile-settings');
+    } catch (error){
+      console.error("Error loading page: ", error);
+
+    }
   };
 
   const toggleSidebar = () => {

@@ -7,6 +7,7 @@ import LandingPage from './components/LandingPage';
 import ProfileMaker from './components/ProfileMaker';
 import Dashboard from './components/Dashboard';
 import MyPage from './components/myPage';
+import ProfileSettings from './components/ProfileSettings';
 
 function App() {
   const handleLoginSuccess = () => {
@@ -24,6 +25,8 @@ function App() {
           <Route path="/profile-maker" element={<ProfileMaker />} />
           <Route path="/dashboard/@me" element={<MyPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile-settings" element={<ProfileSettings />} />
+          
 
         </Routes>
       </div>  
