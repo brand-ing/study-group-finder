@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, GoogleAuthProvider , signInWithPopup} from 'firebase/auth';
+import { doc, getDoc,  } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import NavigateButton from './NavigateButton';
-import SocialButtons from './SocialButtons';
 import { useNavigate } from 'react-router-dom';
 
 const Login = ({ onLogin }) => {
@@ -38,6 +37,15 @@ const Login = ({ onLogin }) => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      navigate("/dashboard"); // Redirect after successful login
+    } catch (error) {
+      console.error("Error signing in with Google:", error.message);
+    }
+  };
   return (
     <div>
       <div className="title-container">
@@ -71,9 +79,9 @@ const Login = ({ onLogin }) => {
         <NavigateButton label="Need an account? Register" target="/register" />
         <div className="icon-container"> 
           <p>Or continue with</p>
-          <div className="icon">
-            <SocialButtons />
-          </div>
+          <button className="google-signin-btn" onClick={signInWithGoogle}>
+          Sign in with Google
+        </button>
         </div>
       </div>
     </div>

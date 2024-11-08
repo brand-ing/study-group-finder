@@ -381,6 +381,23 @@ nav ul li:hover {
   border-radius: 25px;
 }
 
+
+.google-signin-btn {
+  background-color: #4285f4;
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.google-signin-btn:hover {
+  background-color: #357ae8;
+}
 /* Features */
 /* Features.css */
 .features-section {
