@@ -19,7 +19,7 @@ const Login = ({ onLogin }) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user; // Get user data from Firebase
 
-      onLogin(); // Call the onLogin callback
+      //onLogin(); // Call the onLogin callback
 
       // Check if the user document exists
       const userDocRef = doc(db, 'Users', user.uid); // Use the UID instead of email
