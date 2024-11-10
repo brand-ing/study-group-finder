@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { doc, updateDoc } from 'firebase/firestore';
+import { auth, db } from './firebaseConfig';
 import './styles.css';
 
 const WelcomeMessage = ({ nextStep }) => (
@@ -308,12 +310,23 @@ const ScheduleSelector = ({ nextStep, prevStep }) => {
 // Profile Summary page
 const ProfileSummary = ({prevStep}) => {
   const navigate = useNavigate();
-  const handleGroupFinder = () => {
-    navigate('/group-hub'); // Navigate to the Join Group page
+  const completeProfile = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, 'Users', user.uid);
+        await updateDoc(userDocRef, { profileCompleted: true });
+
+
+        navigate('/group-hub'); // Navigate to the Join/Create Group page
+        }
+      } catch (err) {
+        console.error("Error updating profile completion status:", err);
+      }
   };
   return (
   <div className="button-group">
-    <button className="next-btn" onClick={handleGroupFinder}>Next</button>
+    <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
     <button className="back-btn" onClick={prevStep}>Back</button>
   </div>
   );
