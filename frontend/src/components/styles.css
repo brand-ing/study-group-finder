@@ -551,3 +551,400 @@ input[type="password"] {
 .back-button:hover {
   background-color: #0056b3;
 }
+
+/* Profile Maker styling */
+
+.profile-maker-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; 
+  width: 100%;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+.next-btn {
+  width: 100px;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.next-btn:hover {
+  background-color: #45a049;
+}
+
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;  /* Makes the image circular */
+  border: 5px solid transparent;  /* Default transparent border */
+  object-fit: cover;  /* Ensures the image is cropped correctly */
+  transition: border-color 0.3s ease;  /* Smooth transition when the border color changes */
+}
+
+.color-picker-container {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-selection {
+  margin-top: 15px;
+}
+
+.avatars {
+  display: flex;
+  gap: 10px;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.avatar.selected {
+  border-color: #FF6347; /* Highlight the selected avatar with default color */
+}
+
+.profile-maker-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress-bar-container {
+  width: 80%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #4caf50; /* Green color for the progress */
+  transition: width 0.3s ease-in-out;
+}
+
+.interests-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.interest-button {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.interest-button.selected {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.selected-interests ul {
+  list-style: none;
+  padding: 0;
+}
+
+.selected-interests h4 {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.schedule-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.grid-row {
+  display: contents;
+}
+
+.grid-cell {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.header-row .grid-cell {
+  font-weight: bold;
+  background-color: #f2f2f2;
+}
+
+.time-label {
+  font-weight: bold;
+}
+
+.time-block.selected {
+  background-color: #4caf50;
+  color: white;
+}
+
+.availability-summary {
+  margin-top: 20px;
+  text-align: left;
+}
+
+
+.filler-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+
+/* Group Selector  */
+.group-choice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.choice-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.circle-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.circle-btn:hover {
+  background-color: #45a049;
+}
+
+.icon {
+  color: white;
+  font-size: 2.5rem;
+}
+
+p {
+  margin-top: 10px;
+  font-size: 1.1rem;
+}
+
+
+.join-group-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.suggested-groups {
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.group-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.group-card {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 15px;
+  width: 200px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.group-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.group-card h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.group-card p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.group-card span {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.join-with-code {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.join-with-code input {
+  padding: 8px;
+  width: 200px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.join-with-code button {
+  padding: 8px 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.join-with-code button:hover {
+  background-color: #45a049;
+}
+
+
+/* GroupMaker Styles */
+.group-maker-container {
+  width: 90%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+label {
+  display: block;
+  font-size: 1rem;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #555;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #0066cc;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.meeting-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.meeting-times label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.meeting-times input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+button.create-group-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.2rem;
+  background-color: #0066cc;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+button.create-group-btn:hover {
+  background-color: #005bb5;
+}
+
+button.create-group-btn:active {
+  background-color: #004d99;
+}
+
+button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
