@@ -198,6 +198,99 @@ h2,body {
   padding: 20px;
 }
 
+.message-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  gap: 8px; /* Slightly reduce the spacing between items */
+  max-width: 100%; 
+  width: 100%; /* Makes it responsive */
+  border-top: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.file-upload-btn,
+.send-btn,
+.group-activities-btn {
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px; /* Rounded corners */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  transition: background-color 0.3s;
+  height: 32px; /* Ensures the buttons aren’t too tall */
+  width: 60px; /* Adjusts width as needed */
+}
+
+/* File Upload Button */
+.file-upload-btn {
+  background-color: #1a73e8; /* Dark blue */
+  color: #fff;
+}
+
+.file-upload-btn:hover {
+  background-color: #4285f4; /* Lighter blue on hover */
+}
+
+.file-upload-btn:active {
+  background-color: #3367d6; /* Slightly darker blue on click */
+}
+
+/* Send Button */
+.send-btn {
+  background-color: #28a745; /* Green */
+  color: #fff;
+}
+
+.send-btn:hover {
+  background-color: #34d058; /* Light green on hover */
+}
+
+.send-btn:active {
+  background-color: #22863a; /* Darker green on click */
+}
+
+/* Group Activities Button (colors can be customized later) */
+.group-activities-btn {
+  background-color: #d4d4d4; /* Neutral color placeholder */
+  color: #333;
+}
+
+.group-activities-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.group-activities-btn:active {
+  background-color: #bfbfbf;
+}
+
+.message-input {
+  flex-grow: 1; /* Expands to take up remaining space */
+  margin: 0 8px; /* Space between input and buttons */
+  padding: 6px 10px;
+  border-radius: 15px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 1em;
+  min-width: 80%;
+}
+
+.message-input:focus {
+  border-color: #aaa;
+}
+
+
 /* Chat Header (Dropdown + Group Name) */
 .header {
   display: flex;
@@ -230,17 +323,29 @@ h2,body {
 
 /* Area 3: Notifications Sidebar */
 .notification-btn {
-  background: none;
+  background-color: #f0f0f0; /* Light background for a subtle look */
   border: none;
   cursor: pointer;
   padding: 6px;
   color: #666;
   margin-left: auto;
-  transition: background-color 0.3s;
+  border-radius: 50%; /* Makes the button circular */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .notification-btn:hover {
-  background-color: #f0f0f0;
+  background-color: #e0e0e0; /* Slightly darker on hover */
+  color: #333; /* Darker color on hover */
+}
+
+.notification-btn:active {
+  background-color: #ccc; /* Slightly darker when active */
 }
 /* Dashboard layout adjustments */
 .dashboard-buttons {

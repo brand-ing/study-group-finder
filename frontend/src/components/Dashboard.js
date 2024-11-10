@@ -46,7 +46,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [selectedGroup, setSelectedGroup] = useState()
   const [messages, setMessages] = useState()
- 
+  // put here to remove error message lol
+  const [messageText, setMessageText] = useState()
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -96,6 +97,22 @@ const Dashboard = () => {
 
 
 
+  // Putting event handlers for chat here for now...
+  
+  const handleFileUpload = () => {
+    // Logic for file upload
+  };
+  
+  const handleSendMessage = () => {
+    if (messageText.trim()) {
+      // Logic for sending the message
+      setMessageText(''); // Clear the input field
+    }
+  };
+  
+  const toggleGroupActivities = () => {
+    // Logic to open the group activities shelf
+  };
   
 
 
@@ -262,6 +279,31 @@ function ChatMessage(props) {
         </div>
         <div className="message-area">
           {(messages ? messages.map(msg => <ChatMessage key={msg.id} message={msg.data} />) : (<p>Messages will be here...</p>))}
+
+          <div className="chat-input-container">
+          {/* File Upload Button */}
+            <button className="file-upload-btn" onClick={handleFileUpload}>
+            📎  
+            </button>
+            {/* Message Input Field */}
+            <input
+              type="text"
+              className="message-input"
+              placeholder="Type your message..."
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null}
+            />
+            {/* Send Button */}
+            <button className="send-btn" onClick={handleSendMessage}>
+              Send {/* Replace with an icon if desired */}
+            </button>
+
+            {/* Group Activities Button */}
+            <button className="group-activities-btn" onClick={toggleGroupActivities}>
+              📚 {/* Replace with an icon or image if desired */}
+            </button>
+          </div>
         </div>
       </div>
       {/* Notifications Dropdown */}
