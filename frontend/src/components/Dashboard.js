@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, getDocs, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 // import 'firebase/firestore'
 import { auth, db } from './firebaseConfig';
-import { FiSearch, FiUser, FiBell } from 'react-icons/fi'; // Importing icons
+import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
 
 import './styles.css';
 
@@ -135,7 +135,7 @@ const Dashboard = () => {
   };
 
   const toggleSidebar = () => {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
+    setIsSidebarCollapsed(!isSidebarCollapsed); 
   };
 
 
@@ -198,7 +198,9 @@ function ChatMessage(props) {
   </>)
 }
 
-
+  const goToDashboard = () => {
+    navigate('/dashboard/@me'); // Navigate to the future activity dashboard page
+  };
 
   return (
     <div className="dashboard">
@@ -206,6 +208,9 @@ function ChatMessage(props) {
  
       {/* Friends Sidebar */}
       <div className={`sidebar friends ${isSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
+        <button className="dashboard-button" onClick={goToDashboard}>
+          <FiHome className="button-icon" /> 
+        </button>
         <div className="sidebar-header">
           {!isSidebarCollapsed ? (
             <input 
@@ -218,9 +223,9 @@ function ChatMessage(props) {
               <FiSearch size={20} />
             </button>
           )}
-          <button className="toggle-button" onClick={toggleSidebar}>
-            <FiUser size={20} />
-          </button>
+          <button onClick={toggleSidebar} className="toggle-button">
+            {isSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
+        </button>
         </div>
 
 
@@ -234,19 +239,18 @@ function ChatMessage(props) {
 
         {/* Profile Box */}
         <div className="profile-box" onClick={() => setShowDropdown(!showDropdown)}>
-          <div className="profile-info">
-            {/* <span className="username">{username}</span> */}
-            <span className="profile-icon">
-              {isSidebarCollapsed ? (
-                <FiUser size={24} />
-              ) : (
-                <>
-                  <FiUser size={24} />
-                  <span className="username">{userData.first_name}</span>
-                  <span className="username">{username}</span>
-                </>
-              )}
-              </span>
+        <div className="profile-info">
+    {isSidebarCollapsed ? (
+      <FiUser size={24} />
+    ) : (
+      <>
+        <img src={userData.profile_picture} alt="Profile" className="profile-picture" />
+        <div className="profile-text">
+          <span className="first-name">{userData.first_name}</span>
+          <span className="username">{username}</span>
+        </div>
+          </>
+          )}
           </div>
           {showDropdown && (
             <div className="dropdown">
