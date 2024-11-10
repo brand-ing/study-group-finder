@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword, GoogleAuthProvider , signInWithPopup} from 'firebase/auth';
-import { doc, getDoc,  } from 'firebase/firestore';
+import { doc, getDoc, setDoc  } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import NavigateButton from './NavigateButton';
 import { useNavigate } from 'react-router-dom';
@@ -11,31 +11,35 @@ const Login = ({ onLogin }) => {
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
-
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       // Sign in the user
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user; // Get user data from Firebase
+      const user = userCredential.user;
 
-      //onLogin(); // Call the onLogin callback
-
-      // Check if the user document exists
-      const userDocRef = doc(db, 'Users', user.uid); // Use the UID instead of email
+      // Reference the user document in Firestore
+      const userDocRef = doc(db, 'Users', user.uid);
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
-        // First-time user if document does not exist
-        navigate('/profile-maker');
-        await db.collection('Users').doc(user.uid).set({ firstLoginCompleted: true });
+        // For first-time users, create the document with profileCompleted set to false
+        await setDoc(userDocRef, { profileCompleted: false });
+        navigate('/profile-maker'); // Redirect to profile setup page
       } else {
-        navigate('/dashboard'); // Existing users go to Dashboard
+        // Existing user - check if profileCompleted is true or false
+        const userData = userDoc.data();
+        if (userData.profileCompleted) {
+          navigate('/dashboard'); // Profile is complete, go to Dashboard
+        } else {
+          navigate('/profile-maker'); // Profile is incomplete, go to ProfileMaker
+        }
       }
     } catch (err) {
       setError(err.message); // Set the error message for display
     }
   };
+
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();

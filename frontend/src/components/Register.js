@@ -38,6 +38,7 @@ const Register = () => {
         email_address: email,
         phone_number: phoneNumber,
         password: hashedPassword, // Store the hashed password securely
+        profileCompleted: false,
       });
       
       setMessage('Registration successful!');
