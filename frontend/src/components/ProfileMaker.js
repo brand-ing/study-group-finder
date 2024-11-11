@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, updateDoc } from 'firebase/firestore';
+// import { doc, updateDoc } from 'firebase/firestore';
+import { updateDoc, serverTimestamp, onSnapshot, doc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import './styles.css';
 
@@ -227,17 +228,17 @@ const InterestSelector = ({ nextStep, prevStep, selectedInterests, setSelectedIn
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const timeBlocks = ['Morning', 'Afternoon', 'Evening', 'Night'];
 
-const ScheduleSelector = ({ nextStep, prevStep }) => {
+const ScheduleSelector = ({ nextStep, prevStep,availability, setAvailability }) => {
   // Initialize availability state
-  const [availability, setAvailability] = useState(
-    daysOfWeek.reduce((acc, day) => {
-      acc[day] = {}; 
-      timeBlocks.forEach((time) => {
-        acc[day][time] = false; // All time blocks are unselected by default
-      });
-      return acc;
-    }, {})
-  );
+  // const [availability, setAvailability] = useState(
+  //   daysOfWeek.reduce((acc, day) => {
+  //     acc[day] = {}; 
+  //     timeBlocks.forEach((time) => {
+  //       acc[day][time] = false; // All time blocks are unselected by default
+  //     });
+  //     return acc;
+  //   }, {})
+  // );
 
   // Toggle availability for a specific day and time
   const toggleAvailability = (day, time) => {
@@ -308,7 +309,7 @@ const ScheduleSelector = ({ nextStep, prevStep }) => {
   );
 };
 // Profile Summary page
-const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor, bio, selectedInterests, schedule}) => {
+const ProfileSummary = ({prevStep, states}) => {
   const navigate = useNavigate();
   const completeProfile = async () => {
     try {
@@ -316,8 +317,7 @@ const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor,
       if (user) {
         const userDocRef = doc(db, 'Users', user.uid);
         await updateDoc(userDocRef, { profileCompleted: true });
-
-
+        await updateDoc(userDocRef, states);
         navigate('/group-hub'); // Navigate to the Join/Create Group page
         }
       } catch (err) {
@@ -328,17 +328,17 @@ const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor,
     <div className="profile-summary">
       <h1 className="profile-summary-title">Profile Summary</h1>
       <div className="profile-header">
-        <img src={profilePicture} alt={`${name}'s Profile`} className="profile-picture" style={{ borderColor: highlightColor }} />
-        <h2>{name}</h2>
+        <img src={states.profilePicture} alt={`${states.name}'s Profile`} className="profile-picture" style={{ borderColor: states.highlightColor }} />
+        <h2>{states.name}</h2>
       </div>
 
       {/* Gender */}
-      <p><strong>Gender:</strong> {gender}</p>
+      <p><strong>Gender:</strong> {states.gender}</p>
 
       {/* Bio */}
       <div className="bio-section">
         <h3>Bio</h3>
-        <p>{bio}</p>
+        <p>{states.bio}</p>
       </div>
 
       {/* Interests
@@ -354,7 +354,7 @@ const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor,
       {/* Schedule */}
       <div className="schedule-section">
         <h3>Schedule</h3>
-        <p>{schedule}</p>
+        <p>{states.availability}</p>
       </div>
       <div className="button-group">
         <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
@@ -373,10 +373,29 @@ const ProfileMaker = () => {
   const [profilePicture, setProfilePicture] = useState(null); // Initialize profilePicture state
   const [highlightColor, setHighlightColor] = useState('#FF6347'); // Default highlight color (Tomato)
   const [bio, setBio] = useState('');
+  const [availability, setAvailability] = useState(
+    daysOfWeek.reduce((acc, day) => {
+      acc[day] = {}; 
+      timeBlocks.forEach((time) => {
+        acc[day][time] = false; // All time blocks are unselected by default
+      });
+      return acc;
+    }, {})
+  );
 
   
   const handleGroupSelection = (groupId) => {
     // Here, implement the logic for joining the group by ID
+    // var userDocRef = doc(db, 'Users', user.uid);
+    // var groupDocRef = doc(db, 'Groups', groupId);
+
+    // const updateUser = await updateDoc(doc(db,"Users",user.uid),
+    //   {groups: arrayUnion(groupDocRef)}
+    // )
+
+    // const updateGroup = await updateDoc(docRef,
+    //   {members: arrayUnion(userDocRef)}
+    // )
     alert(`Joined group with ID: ${groupId}`);
     nextStep();
   };
@@ -384,6 +403,7 @@ const ProfileMaker = () => {
   const handleJoinWithCode = (code) => {
     // Add logic to verify the code and join the group if valid
     alert(`Attempting to join with code: ${code}`);
+    // For now, treat group IDs as group codes :)
     nextStep();
   };
 
@@ -408,8 +428,17 @@ const ProfileMaker = () => {
       selectedInterests={selectedInterests}
       setSelectedInterests={setSelectedInterests}
     />,
-    <ScheduleSelector nextStep={nextStep} prevStep={prevStep} />,
-    <ProfileSummary />,
+    <ScheduleSelector nextStep={nextStep} prevStep={prevStep} availability={availability} setAvailability={setAvailability} />,
+    <ProfileSummary prevStep={prevStep} states={
+      {
+        name: name,
+        bio: bio,
+        profilePicture: profilePicture,
+        selectedInterests: selectedInterests,
+        highlightColor: highlightColor,
+        availability: availability
+      }      
+    } />,
     // Add other steps (School, Bio, etc.)
   ];
   

@@ -110,6 +110,12 @@ const GroupMaker = () => {
     addGroupToFirestore(newGroup);
   };
 
+  const availableInterests = [
+    'Computer Science', 'Mathematics', 'Physics', 'Biology', 'Chemistry',
+    'Literature', 'History', 'Psychology', 'Economics', 'Philosophy',
+    'Engineering', 'Political Science', 'Art', 'Music', 'Sociology'
+  ];
+
   return (
     <div className="group-maker-container">
       <h2>Create a New Group</h2>
@@ -125,12 +131,15 @@ const GroupMaker = () => {
 
       <label>Subject/Category</label>
       <select value={subject} onChange={(e) => setSubject(e.target.value)}>
-        <option value="">Select a subject</option>
+        {availableInterests.map(interest => 
+          React.createElement('option', {key: interest, value:interest}, interest)
+        )}
+        {/* <option value="">Select a subject</option>
         <option value="math">Math</option>
         <option value="science">Science</option>
         <option value="history">History</option>
         <option value="programming">Programming</option>
-        <option value="literature">Literature</option>
+        <option value="literature">Literature</option> */}
       </select>
 
       <label>Meeting Times</label>
