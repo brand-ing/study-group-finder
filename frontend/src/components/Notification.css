@@ -1,0 +1,37 @@
+/* Notification.css */
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .notification-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .timestamp {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 5px;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .close-btn:hover {
+    color: #555;
+  }
+  

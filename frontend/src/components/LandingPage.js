@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 import { ReactComponent as Logo } from './img/lfg-logo.svg';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Features from './Features';
 
@@ -25,9 +27,12 @@ const LandingPage = () => {
                 <button onClick={() => navigate('/register')} className="register-btn hero-btn">Sign Up Now </button>
                 <h2 className="cta-statement">Let’s Forge Greatness!</h2> 
             </div>
+            <div className='features-section'>
                 <Features />
                 <h2 className="cta-statement"> GET YOUR A-Team Together TODAY </h2>
+            </div>
             <footer>
+                <button onClick={() => navigate('/register')} className="register-btn">Sign Up</button>
                 <p>© 2024 Panther Pals</p>
             </footer>
         </div>

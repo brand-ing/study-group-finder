@@ -1,47 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, updateDoc, getDoc  } from 'firebase/firestore';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db } from './firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
 import './styles.css';
+import ProfilePictureSetup from './ProfilePictureSetup';
 
 const WelcomeMessage = ({ nextStep }) => {
+  const [userId, setUserId] = useState(null);
   const [firstName, setFirstName] = useState(''); // State to hold the first name
   const [loading, setLoading] = useState(true); // To handle loading state
   const [error, setError] = useState(null); // To handle errors
 
   useEffect(() => {
-    // Assuming user is already authenticated and you have the user ID
-    const userId = 'lkaAYKns8pWm7IgjYZfqcdurgVo2'; // Replace with actual user ID logic
-
-    const fetchUserData = async () => {
-      try {
-        // Fetch user document from Firestore
-        const docRef = doc(db, 'Users', userId); // Adjust the collection and document ID as needed
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          // If document exists, set the first name
-          setFirstName(docSnap.data().first_name);
-        } else {
-          setError('User data not found');
-        }
-      } catch (error) {
-        setError('Failed to fetch user data');
-      } finally {
+    // Listen for auth state changes to get the user ID
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, set the userId
+        setUserId(user.uid);
+      } else {
+        // User is signed out
+        setError('No user is logged in.');
         setLoading(false);
       }
-    };
+    });
 
-    fetchUserData();
-  }, []); // Empty dependency array ensures this runs only once on component mount
+    // Cleanup the listener on component unmount
+    return unsubscribe;
+  }, []);
+useEffect(() => {
+    // Only fetch data if userId is set
+    if (userId) {
+      const fetchUserData = async () => {
+        setLoading(true);
+        try {
+          // Fetch user document from Firestore
+          const docRef = doc(db, 'Users', userId); // Adjust the collection and document ID as needed
+          const docSnap = await getDoc(docRef);
 
-  // Handle loading state
-  if (loading) return <div>Loading...</div>;
+          if (docSnap.exists()) {
+            // If document exists, set the first name
+            setFirstName(docSnap.data().first_name);
+          } else {
+            setError('User data not found');
+          }
+        } catch (error) {
+          setError('Failed to fetch user data');
+        } finally {
+          setLoading(false);
+        }
+      };
 
-  // Handle error state
-  if (error) return <div>{error}</div>;
+      fetchUserData();
+    }
+  }, [userId]); // Run fetchUserData whenever userId changes
 
-  // Render the welcome message when data is loaded
+  // Render loading, error, or data
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
   return (
     <div className="profile-maker-container">
       <h1>Welcome, {firstName}!</h1>
@@ -50,6 +67,7 @@ const WelcomeMessage = ({ nextStep }) => {
     </div>
   );
 };
+
 
 const ProfileName = ({ name, setName, nextStep }) => (
   <div className="profile-maker-container">
@@ -88,106 +106,7 @@ const defaultAvatars = [
   '/images/avatar4.png', 
 ];
 
-
-  const ProfilePictureSetup = ({  nextStep, currentStep, prevStep, setProfilePicture, setHighlightColor, name , setName }) => {
-    const [selectedAvatar, setSelectedAvatar] = useState(defaultAvatars[0]);
-    const [image, setImage] = useState(null);
-    const [highlightColor, setHighlightColorState] = useState('#FF6347'); // Default highlight color (Tomato)
-  
-    const handleFileChange = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImage(reader.result); // Update image preview
-          setSelectedAvatar(null); // If custom image is selected, reset avatar selection
-        };
-        reader.readAsDataURL(file); // Convert image to base64 string
-      }
-    };
-  
-    const handleAvatarSelect = (avatar) => {
-      setImage(null); // Clear custom image
-      setSelectedAvatar(avatar); // Set selected avatar
-    };
-  
-    const handleColorChange = (event) => {
-      const color = event.target.value;
-      setHighlightColorState(color); // Update highlight color
-      setHighlightColor(color); // Save color to parent component (ProfileMaker)
-    };
-  
-    const handleNameChange = (e) => {
-      setName(e.target.value); // Update display name
-    };
-    
-    useEffect(() => {
-      setProfilePicture(selectedAvatar || image); // Save the profile picture
-    }, [selectedAvatar, image, setProfilePicture]);
-  
-    return (
-      <div className="profile-maker-container">
-        <h2>Choose a profile picture</h2>
-        <h3>(You can change this later in settings.)</h3>
-  
-        {/* Image preview with dynamic border color */}
-        <div className="image-preview">
-          {image ? (
-            <img
-              src={image}
-              alt="Profile Preview"
-              className="profile-image"
-              style={{ borderColor: highlightColor }} // Apply dynamic border color
-            />
-          ) : (
-            <img
-              src={selectedAvatar}
-              alt="Default Avatar"
-              className="profile-image"
-              style={{ borderColor: highlightColor }} // Apply dynamic border color
-            />
-          )}
-        </div>
-        <p>{name ? name : "Your Display Name"}</p>
-        {/* Upload button */}
-        <input type="file" accept="image/*" onChange={handleFileChange} />
-  
-        <div className="avatar-selection">
-          <h3>Or choose from default avatars:</h3>
-          <div className="avatars">
-            {defaultAvatars.map((avatar, index) => (
-              <img
-                key={index}
-                src={avatar}
-                alt={`Avatar ${index + 1}`}
-                className={`avatar ${selectedAvatar === avatar ? 'selected' : ''}`}
-                onClick={() => handleAvatarSelect(avatar)}
-              />
-            ))}
-          </div>
-        </div>
-  
-        {/* Color picker */}
-        <div className="color-picker-container">
-          <label htmlFor="highlight-color">Choose your highlight color:</label>
-          <input
-            type="color"
-            id="highlight-color"
-            value={highlightColor}
-            onChange={handleColorChange}
-          />
-        </div>
-  
-
-        {/* Next button */}
-        <div className="button-group">
-          <button className="next-btn" onClick={nextStep}>Next</button>
-          <button className="back-btn" onClick={prevStep} disabled={currentStep === 0}>Back</button>
-        </div>
-      </div>
-    );
-  };
-  
+<ProfilePictureSetup />
 //
   
 const BioSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
@@ -347,7 +266,7 @@ const ScheduleSelector = ({ nextStep, prevStep }) => {
   );
 };
 // Profile Summary page
-const ProfileSummary = ({prevStep}) => {
+const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor, bio, selectedInterests, schedule}) => {
   const navigate = useNavigate();
   const completeProfile = async () => {
     try {
@@ -364,10 +283,42 @@ const ProfileSummary = ({prevStep}) => {
       }
   };
   return (
-  <div className="button-group">
-    <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
-    <button className="back-btn" onClick={prevStep}>Back</button>
-  </div>
+    <div className="profile-summary">
+      <h1 className="profile-summary-title">Profile Summary</h1>
+      <div className="profile-header">
+        <img src={profilePicture} alt={`${name}'s Profile`} className="profile-picture" style={{ borderColor: highlightColor }} />
+        <h2>{name}</h2>
+      </div>
+
+      {/* Gender */}
+      <p><strong>Gender:</strong> {gender}</p>
+
+      {/* Bio */}
+      <div className="bio-section">
+        <h3>Bio</h3>
+        <p>{bio}</p>
+      </div>
+
+      {/* Interests
+      <div className="interests-section">
+        <h3>Interests</h3>
+        <ul>
+          {selectedInterests.map((interest, index) => (
+            <li key={index}>{interest}</li>
+          ))}
+        </ul>
+      </div> */}
+
+      {/* Schedule */}
+      <div className="schedule-section">
+        <h3>Schedule</h3>
+        <p>{schedule}</p>
+      </div>
+      <div className="button-group">
+        <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
+        <button className="back-btn" onClick={prevStep}>Back</button>
+      </div>
+    </div>
   );
 };
 //
@@ -416,7 +367,7 @@ const ProfileMaker = () => {
       setSelectedInterests={setSelectedInterests}
     />,
     <ScheduleSelector nextStep={nextStep} prevStep={prevStep} />,
-    <ProfileSummary />,
+    <ProfileSummary prevStep={prevStep} />,
     // Add other steps (School, Bio, etc.)
   ];
   

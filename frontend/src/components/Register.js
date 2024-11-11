@@ -62,6 +62,8 @@ const Register = () => {
   hasSpecialChar: false,
 });
 
+const [isCheckerVisible, setIsCheckerVisible] = useState(false);
+
 const validatePassword = (password) => {
   setPasswordValid({
     minLength: password.length >= 8,
@@ -101,75 +103,89 @@ const handlePhoneNumberChange = (formattedPhoneNumber) => {
 };
 
 return (
-  <div>
+  <div className="register-page">
       <div className="title-container">
-          <a href="/">
-              <h1 className='title-long'>looking for group?</h1>
-          </a>
+        <a href="/">
+          <h1 className="title">Looking for Group?</h1>
+        </a>
+          <p className="tagline">A place where students come together and collaborate.</p>
       </div>
-      <div className="container dark-mode">
+      <div className="form-container">
           <form onSubmit={handleSubmit}>
-              <h2>Register</h2>
+              <h2>Create Your Account</h2>
               {message && <p className="message">{message}</p>}
-              <input
-                  type="text"
-                  placeholder="First Name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  style={{ borderColor: error.firstName ? 'red' : '' }}
-              />
-              {error.firstName && <p className="error">{error.firstName}</p>}
-
-              <input
-                  type="text"
-                  placeholder="Last Name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  style={{ borderColor: error.lastName ? 'red' : '' }}
-              />
-              {error.lastName && <p className="error">{error.lastName}</p>}
-
-              <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ borderColor: error.email ? 'red' : '' }}
-              />
-              {error.email && <p className="error">{error.email}</p>}
-
-              <PhoneNumberInput
-                  value={phoneNumber}
-                  onChange={handlePhoneNumberChange}
-                  style={{ borderColor: error.phoneNumber ? 'red' : '' }}
-              />
-              {error.phoneNumber && <p className="error">{error.phoneNumber}</p>}
-
-              <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  style={{ borderColor: Object.values(passwordValid).includes(false) ? 'red' : 'green' }}
+              <div className="input-group">
+                  <input
+                      type="text"
+                      placeholder="First Name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      style={{ borderColor: error.firstName ? 'red' : '' }}
                   />
-                  <p>Forgot?</p>
-              {error.password && <p className="error">{error.password}</p>}
-              <div className="password-checker">
-                <p>{passwordValid.minLength ? '✔️' : '❌'} Minimum 8 characters</p>
-                <p>{passwordValid.hasUpperCase ? '✔️' : '❌'} At least one uppercase letter</p>
-                <p>{passwordValid.hasLowerCase ? '✔️' : '❌'} At least one lowercase letter</p>
-                <p>{passwordValid.hasNumber ? '✔️' : '❌'} At least one number</p>
-                <p>{passwordValid.hasSpecialChar ? '✔️' : '❌'} At least one special character</p>
-            </div>
+                  {error.firstName && <p className="error">{error.firstName}</p>}
+              </div>
 
-              <button type="submit">Register</button>
+              <div className="input-group">
+                  <input
+                      type="text"
+                      placeholder="Last Name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      style={{ borderColor: error.lastName ? 'red' : '' }}
+                  />
+                  {error.lastName && <p className="error">{error.lastName}</p>}
+              </div>
+
+              <div className="input-group">
+                  <input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      style={{ borderColor: error.email ? 'red' : '' }}
+                  />
+                  {error.email && <p className="error">{error.email}</p>}
+              </div>
+
+              <div className="input-group">
+                  <PhoneNumberInput
+                      value={phoneNumber}
+                      onChange={handlePhoneNumberChange}
+                      style={{ borderColor: error.phoneNumber ? 'red' : '' }}
+                  />
+                  {error.phoneNumber && <p className="error">{error.phoneNumber}</p>}
+              </div>
+
+              <div className="password-container">
+                  <input
+                      type="password"
+                      value={password}
+                      onChange={handlePasswordChange}
+                      onFocus={() => setIsCheckerVisible(true)}
+                      onBlur={() => setIsCheckerVisible(false)}
+                      placeholder="Enter your password"
+                      className="password-input"
+                  />
+                  {isCheckerVisible && (
+                      <div className="password-checker">
+                          <p>{passwordValid.minLength ? '✔️' : '❌'} Minimum 8 characters</p>
+                          <p>{passwordValid.hasUpperCase ? '✔️' : '❌'} At least one uppercase letter</p>
+                          <p>{passwordValid.hasLowerCase ? '✔️' : '❌'} At least one lowercase letter</p>
+                          <p>{passwordValid.hasNumber ? '✔️' : '❌'} At least one number</p>
+                          <p>{passwordValid.hasSpecialChar ? '✔️' : '❌'} At least one special character</p>
+                      </div>
+                  )}
+              </div>
+
+              <button type="submit" className="flame-button">Register</button>
+
           </form>
           <p>By signing up you agree to our Terms of Use and Privacy Policy</p>
-          <NavigateButton label="Already have an account? Sign In" target="/login" />
+          <NavigateButton label="Already have an account? Sign In" target="/login"/>
+
       </div>
   </div>
 );
 };
-
 
 export default Register;

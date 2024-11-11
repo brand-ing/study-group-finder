@@ -188,7 +188,7 @@ h2,body {
 
 /* Area 2: Main Chat Area */
 .main-content {
-  width: 100%;
+  width: 95%;
   background-color: #333333;
   color: white;
   display: flex;
@@ -201,8 +201,18 @@ h2,body {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  /* justify-content: flex-end; */ /*disabled for now because it breaks overflow/scrolling*/
+  flex-grow: 1;
+  overflow-y: auto; /* Enables vertical scroll only in this container */
+  overflow-x: hidden;
+  word-wrap: break-word;
 }
+
+/* .message-area>* {
+  box-sizing: border-box;
+  max-width: 100%;
+  flex-grow: 1;
+} */
 
 .chat-input-container {
   display: flex;
@@ -230,6 +240,56 @@ h2,body {
   transition: background-color 0.3s;
   height: 32px; /* Ensures the buttons aren’t too tall */
   width: 60px; /* Adjusts width as needed */
+}
+.group-activities-container {
+  position: relative;
+  display: inline-block;
+}
+
+.group-activities-btn {
+  font-size: 24px;
+  padding: 10px;
+  border: none;
+  background-color: #0073e6;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.group-activities-btn:hover {
+  background-color: #005bb5;
+}
+
+.group-activities-menu {
+  position: absolute;
+  top: 50px; /* Adjust based on button size and position */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  width: 150px;
+  z-index: 10;
+}
+
+.group-activities-menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.group-activities-menu li {
+  padding: 10px;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+.group-activities-menu li:hover {
+  background-color: #f0f0f0;
 }
 
 /* File Upload Button */
@@ -453,6 +513,7 @@ h2,body {
 
 
 
+/*Landing Page */ 
 /* Landing Page Styling */
 
 /* General Reset */
@@ -524,6 +585,7 @@ nav ul li:hover {
   font-weight: 400;
   color: #f1f1f1;
   margin-bottom: 30px;
+  background-color: #000;
 }
 
 /* Call-to-Action Buttons */
@@ -588,6 +650,9 @@ nav ul li:hover {
   transform: scale(0.98);         /* Slightly shrink when clicked */
 }
 
+footer{
+  background-color: #000;
+}
 
 /* Responsive Styling */
 @media (max-width: 768px) {
@@ -606,9 +671,7 @@ nav ul li:hover {
     font-size: 4rem;
   }
 
-  .cta-statement {
-    font-size: 1.8rem;
-  }
+
 }
 
 
@@ -629,23 +692,57 @@ nav ul li:hover {
 .google-signin-btn:hover {
   background-color: #357ae8;
 }
+
+//
+.google-signin-btn {
+  background-color: #4285f4;
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.google-signin-btn:hover {
+  background-color: #357ae8;
+}
 /* Features */
-/* Features Section */
+/* Features.css */
 .features-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 60px 20px;
-  gap: 30px;
-  background-color: #000; /* Black background */
-  color: #fff;            /* White text for contrast */
+  padding: 20px;
+  gap: 20px;
+  background-color: #000;
 }
 
-/* Individual Feature Container */
+.features-section {
+  color: #fff;
+}
+
+.feature-container h3 {
+  margin-top: 0;
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: bold;
+  opacity: 0.4;
+  text-align: center;
+
+}
+
+.feature-container p {
+  color: #bbb;
+  font-size: 1rem;
+}
 .feature-container {
   width: 90%;
-  max-width: 600px;
-  background-color: #222;  /* Dark background for containers */
+  max-width: 558px;
+  background-color: #222;
   padding: 20px;
   display: grid;
   border-radius: 12px;
@@ -654,59 +751,14 @@ nav ul li:hover {
 }
 
 .feature-container:hover {
-  transform: translateY(-5px); /* Hover effect for elevation */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Feature Heading */
-.feature-container h3 {
-  margin-top: 0;
-  color: #fff;  /* White text for the heading */
-  font-size: 1.8rem;
-  font-weight: bold;
-}
 
-/* Feature Description */
 .feature-container p {
-  color: #bbb; /* Light gray for description */
-  font-size: 1rem;
+  color: #666; /* Medium gray color for description */
 }
-
-/* Bars for Features */
-.features-section h2 {
-  color:#fff;
-}
-.feature-bar {
-  height: 12px;
-  border-radius: 10px;
-  background-color: #444;
-  width: 100%;
-  margin: 10px 0;
-  overflow: hidden;
-  position: relative;
-}
-
-.feature-bar span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, #61dafb, #0077b6); /* Dynamic gradient bar */
-  transition: width 0.3s ease;
-}
-
-.feature-bar span.low {
-  width: 30%; /* Example value */
-}
-
-.feature-bar span.medium {
-  width: 60%; /* Example value */
-}
-
-.feature-bar span.high {
-  width: 100%; /* Example value */
-}
-
-
-
 
 
 /* ProfileSettings.css */
@@ -764,6 +816,208 @@ input[type="password"] {
   font-size: 1rem;
   margin-top: 5px;
 }
+/* Register styling */
+
+.login-page, .register-page  {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #fff, #dad5d5);
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* Title and Tagline */
+.title-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title-long {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.tagline {
+    font-size: 18px;
+    color: #f4f4f4;
+}
+
+
+/* Styling the Title */
+.title {
+  font-family: 'DM Sans';
+  font-size: 5rem;  /* Make the title really big */
+  font-weight: bold;  /* Bold font */
+  color: #333;  /* Dark color for the title */
+  text-transform: uppercase;  /* Optional: make the title all caps */
+  margin: 0;  /* Remove default margin */
+  line-height: 1.2;  /* Adjust line height */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);  /* Optional: subtle shadow for emphasis */
+}
+
+a {
+  text-decoration: none;  /* Remove underline */
+  color: inherit;  /* Use the parent's text color */
+}
+
+/* Form Container */
+.form-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Input Fields */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #2575fc;
+    outline: none;
+}
+
+
+.password-container {
+  position: relative;
+  width: 300px;
+  margin: 0 auto;
+}
+
+.password-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.password-checker {
+  position: absolute;
+  top: 0;
+  left: 100%; /* Move the checker to the right side of the input */
+  margin-left: 10px; /* Space between the input and the checker */
+  width: 250px; /* Adjust the width if necessary */
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.password-checker p {
+  margin: 5px 0;
+}
+
+.password-checker p .valid {
+  color: green;
+}
+
+.password-checker p .invalid {
+  color: red;
+}
+/* I went crazy  */
+/* Button with Flame Effect */
+.flame-button {
+  position: relative;
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  color: #fff;
+  background: linear-gradient(45deg, #ff5f6d, #ffc371);
+  background-size: 200% 200%;
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: background-position 0.5s ease, box-shadow 0.3s ease;
+  animation: flameAnimation 1.5s infinite alternate;
+}
+
+/* Hover Animation for Flames */
+.flame-button:hover {
+  background-position: 100% 100%;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7), 0 0 25px rgba(255, 69, 0, 0.6);
+}
+
+/* Keyframes for Flame Effect */
+@keyframes flameAnimation {
+  0% {
+      background-position: 0% 0%;
+      text-shadow: 0 0 8px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.6);
+  }
+  50% {
+      background-position: 100% 100%;
+      text-shadow: 0 0 12px rgba(255, 140, 0, 0.7), 0 0 25px rgba(255, 69, 0, 0.5);
+  }
+  100% {
+      background-position: 0% 0%;
+      text-shadow: 0 0 8px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.7);
+  }
+}
+
+/* Add Glow on Focus */
+.flame-button:focus {
+  outline: none;
+  box-shadow: 0 0 20px rgba(255, 69, 0, 1), 0 0 30px rgba(255, 69, 0, 1);
+}
+
+
+/* Simple Button Style */
+.simple-button {
+    display: inline-block;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;  /* Dark gray text */
+    background-color: #f1f1f1;  /* Light gray background */
+    border: 2px solid #ccc;  /* Subtle border */
+    border-radius: 30px;
+    text-decoration: none;  /* Remove underline */
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Hover Effect */
+.simple-button:hover {
+    color: #fff;
+    background-color: #007bff;  /* Blue background on hover */
+    border-color: #007bff;  /* Matching border on hover */
+}
+
+/* Focus Style */
+.simple-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.6);  /* Subtle glow on focus */
+}
+
 
 .notification-settings-button {
   display: block;
@@ -838,6 +1092,16 @@ input[type="password"] {
   background-color: #f9f9f9;
   font-family: Arial, sans-serif;
 }
+
+.back-btn {
+  padding: 10px 20px; /* Add padding to the buttons */
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
 .next-btn {
   width: 100px;
   padding: 10px;
@@ -855,13 +1119,30 @@ input[type="password"] {
 }
 
 
-.profile-image {
+.profile-maker-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.image-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 120px;
   height: 120px;
-  border-radius: 50%;  /* Makes the image circular */
-  border: 5px solid transparent;  /* Default transparent border */
-  object-fit: cover;  /* Ensures the image is cropped correctly */
-  transition: border-color 0.3s ease;  /* Smooth transition when the border color changes */
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 20px auto;
+  background-color: #f0f0f0; /* Light background to indicate empty state */
+  border: 5px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .color-picker-container {
@@ -878,6 +1159,7 @@ input[type="password"] {
 .avatars {
   display: flex;
   gap: 10px;
+  justify-content: center;
 }
 
 .avatar {
@@ -892,6 +1174,7 @@ input[type="password"] {
 .avatar.selected {
   border-color: #FF6347; /* Highlight the selected avatar with default color */
 }
+
 
 .profile-maker-wrapper {
   display: flex;
@@ -1221,4 +1504,198 @@ button.create-group-btn:active {
 button:disabled {
   background-color: #ddd;
   cursor: not-allowed;
+}
+
+/* Message box area rules */
+/* Main message container */
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column; /* Stack items vertically */
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  position: relative; /*Needed for buttons to position relative to these divs when they use absolute*/
+}
+
+/* Profile image, optional */
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  background-color: #c4c4c4; /* Placeholder color */
+}
+
+/* Message content area */
+.message-content {
+  /* max-width: 100%; */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Username styling */
+.message-username {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.9rem;
+  margin-right: 8px;
+}
+
+/* Timestamp styling */
+.message-time {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Flexbox container for username and timestamp */
+.message-header {
+  display: flex;
+  align-items: center;
+}
+
+/* Chat message text */
+.message-text {
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #444;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  white-space: pre-wrap; /* To preserve line breaks */
+  text-align: left;
+}
+
+/* Example for right-aligned messages (for sender vs. receiver) */
+.message-container.sender .message-text {
+  background-color: #68BBE3;
+  align-self: flex-end;
+}
+
+.message-container.sender .message-username {
+  color: #055C9D;
+}
+
+/* Reply container */
+.reply-preview {
+  display: flex;
+  flex-direction:row;
+  background-color: #f0f0f0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border-left: 3px solid #ccc; /* Visual indicator for reply */
+  cursor: pointer; /* Indicates it's clickable */
+}
+
+.reply-preview:hover {
+  background-color: #e8e8e8; /* Change on hover to show interactivity */
+}
+
+.reply-preview-content {
+  font-size: 0.85rem;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Ensure the text stays short */
+  margin-bottom: 4px;
+}
+
+.reply-preview-time {
+  font-size: 0.75rem;
+  color: #888;
+  text-align: right;
+  margin-left: 4px;
+}
+
+/*buttons that show up on a message on hover, such as Reply*/
+.message-buttons {
+  position:absolute;
+  top: 8px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  opacity: 0; /* Start hidden */
+  transition: opacity 0.2s ease;
+}
+
+/* Show buttons on hover */
+.message-container:hover .message-buttons {
+  opacity: 1;
+}
+
+/* Individual button styling */
+.message-button {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.message-button:hover {
+  background-color: #0056b3;
+}
+
+/* Dashboard/Me  */
+
+.welcome-header {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.nav-section {
+  margin: 20px 0;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #3498db;
+  margin-top: 20px;
+}
+
+.group-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.nav-card {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-card:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.back-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #2ecc71;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #27ae60;
 }

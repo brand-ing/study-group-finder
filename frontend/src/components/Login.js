@@ -51,13 +51,13 @@ const Login = ({ onLogin }) => {
     }
   };
   return (
-    <div>
+    <div className='login-page'>
       <div className="title-container">
         <a href="/">
-          <h1>looking for group.</h1>
+          <h1 className="title">Looking for Group?</h1>
         </a>
       </div>
-      <div className="container dark-mode">
+      <div className="form-container ">
         <form onSubmit={handleLogin}>
           <h2>Log into your account</h2>
           {error && <p className="error">{error}</p>}
@@ -78,7 +78,7 @@ const Login = ({ onLogin }) => {
             />
             <p className="forgot-text">Forgot?</p>
           </div>
-          <button type="submit">Log in</button>
+          <button type="submit" className="flame-button">Log in</button>
         </form>
         <NavigateButton label="Need an account? Register" target="/register" />
         <div className="icon-container"> 
