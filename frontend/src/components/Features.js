@@ -4,6 +4,7 @@ import './styles.css'; // Make sure to import the CSS file for styling
 const Features = () => {
   return (
     <div className="features-section">
+      <h2>Features</h2>
       <div className="feature-container">
         <h3>Connect Instantly with Classmates</h3>
         <p>Message your peers directly—quick, easy, and right when you need it. No more missed group messages!</p>

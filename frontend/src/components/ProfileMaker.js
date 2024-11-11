@@ -1,16 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc  } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import './styles.css';
 
-const WelcomeMessage = ({ nextStep }) => (
-  <div className="profile-maker-container">
-    <h1>Welcome, User!</h1>
-    <p>Let’s set up your account!</p>
-    <button className="next-btn" onClick={nextStep}>Next</button>
-  </div>
-);
+const WelcomeMessage = ({ nextStep }) => {
+  const [firstName, setFirstName] = useState(''); // State to hold the first name
+  const [loading, setLoading] = useState(true); // To handle loading state
+  const [error, setError] = useState(null); // To handle errors
+
+  useEffect(() => {
+    // Assuming user is already authenticated and you have the user ID
+    const userId = 'lkaAYKns8pWm7IgjYZfqcdurgVo2'; // Replace with actual user ID logic
+
+    const fetchUserData = async () => {
+      try {
+        // Fetch user document from Firestore
+        const docRef = doc(db, 'Users', userId); // Adjust the collection and document ID as needed
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          // If document exists, set the first name
+          setFirstName(docSnap.data().first_name);
+        } else {
+          setError('User data not found');
+        }
+      } catch (error) {
+        setError('Failed to fetch user data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []); // Empty dependency array ensures this runs only once on component mount
+
+  // Handle loading state
+  if (loading) return <div>Loading...</div>;
+
+  // Handle error state
+  if (error) return <div>{error}</div>;
+
+  // Render the welcome message when data is loaded
+  return (
+    <div className="profile-maker-container">
+      <h1>Welcome, {firstName}!</h1>
+      <p>Let’s set up your account!</p>
+      <button className="next-btn" onClick={nextStep}>Next</button>
+    </div>
+  );
+};
 
 const ProfileName = ({ name, setName, nextStep }) => (
   <div className="profile-maker-container">

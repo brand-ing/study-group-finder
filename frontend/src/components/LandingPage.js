@@ -21,15 +21,12 @@ const LandingPage = () => {
                 </div>
             </nav>
             <div className="hero-section">
-                <p id="hero-what">LFG = looking for group </p>
-                <p>***LFG connects you with like-minded learners, helps you stay on track, and makes studying more productive and fun.***   </p>
-
+                <p id="hero-what">CONNECT WITH LEARNERS, STAY ON TRACK, AND MAKE STUDYING MORE FUN. </p>
+                <button onClick={() => navigate('/register')} className="register-btn hero-btn">Sign Up Now </button>
                 <h2 className="cta-statement">Let’s Forge Greatness!</h2> 
             </div>
-            <h2>Features</h2>
                 <Features />
                 <h2 className="cta-statement"> GET YOUR A-Team Together TODAY </h2>
-                <button onClick={() => navigate('/register')} className="register-btn">Sign Up</button>
             <footer>
                 <p>© 2024 Panther Pals</p>
             </footer>
