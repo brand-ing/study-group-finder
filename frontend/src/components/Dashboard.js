@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { signOut, getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc, getDocs, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
+import { serverTimestamp, onSnapshot, doc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 // import 'firebase/firestore'
 import { auth, db } from './firebaseConfig';
 import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
@@ -15,11 +15,11 @@ import Message from './Message';
 const notify = () => toast("Here is your toast.");
 
   async function fetchFirestoreUserData(user) {
-    var error;
+    var error,userData;
     try{
       var userDocRef = doc(db, 'Users', user.uid); // Use the UID instead of email
       var userDoc = await getDoc(userDocRef);
-      var userData = userDoc.data();
+      userData = userDoc.data();
     } catch(err) {
       error = err;
     }
@@ -27,15 +27,32 @@ const notify = () => toast("Here is your toast.");
   }
 
   async function fetchFirestoreDoc(ref) { //Why did I make this?
-    var error;
+    var error,doc,docData;
     try{
-      var doc = await getDoc(ref);
-      var docData = doc.data();
+      doc = await getDoc(ref);
+      docData = doc.data();
     } catch(err) {
       error = err;
     }
     return [docData, error];
   } 
+
+  async function addMessageToFirestore(msgCollection,uid,userDisplayName, content, replyToID ) {
+    var error,msgDocRef;
+    try{
+      msgDocRef = await addDoc(msgCollection,{
+        timestamp: serverTimestamp(),
+        content: content,
+        replyToID: replyToID,
+        uid: uid,
+        userDisplayName: userDisplayName,
+        lastChanged: serverTimestamp()
+      });
+    } catch(err) {
+      error = err;
+    }
+    return [msgDocRef, error];
+  }
 
 
 const Dashboard = () => {
@@ -49,10 +66,14 @@ const Dashboard = () => {
   const [groupDataArray,setGroupDataArray] = useState();
   const [groupArray, setGroupArray] = useState([]);
   const navigate = useNavigate();
-  const [selectedGroup, setSelectedGroup] = useState()
-  const [messages, setMessages] = useState()
+  const [selectedGroup, setSelectedGroup] = useState();
+  const [messages, setMessages] = useState();
   // put here to remove error message lol
-  const [messageText, setMessageText] = useState()
+  // i made a button... - Jamie 11/10
+  const [messageText, setMessageText] = useState("");
+  const [replyToID, setReplyToID] = useState(false);
+  const [groupChannelRef, setGroupChannelRef] = useState();
+  const [messageEditID, setMessageEditID] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -72,7 +93,9 @@ const Dashboard = () => {
           var groups = [];
           var gdata = [];
 
-          for(var i = 0; i < data.groups.length; i++) {
+          const numberGroups = ((data.groups && data.groups.length) ? data.groups.length : 0);
+
+          for(var i = 0; i < numberGroups; i++) {
             let curr = await getDoc(data.groups[i])
             let currData = curr.data();
             // console.log("curr: " + JSON.stringify(currData));
@@ -96,9 +119,18 @@ const Dashboard = () => {
     return unsubscribe;
   }, []);
 
-
+  //Realtime updates for new messages from other users
+  //https://firebase.google.com/docs/firestore/query-data/listen
   useEffect(() => {
-  },[selectedGroup]) //TODO
+    if(!groupChannelRef) {return;}
+    const q = query(collection(db, groupChannelRef.path + "/Messages"), orderBy('timestamp'), limit(100));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      //TODO: find out how/where a SnapshotMetadata instance is returned
+      // const source = doc.metadata.hasPendingWrites ? "Local" : "Server"; 
+      updateMessages(querySnapshot);
+    });
+    return unsubscribe;
+  },[])
 
 
 
@@ -108,10 +140,61 @@ const Dashboard = () => {
     // Logic for file upload
   };
   
-  const handleSendMessage = () => {
-    if (messageText.trim()) {
+  async function handleSendMessage() {
+    var txtToSend = messageText.trim();
+    if(!txtToSend) {return;}
+    if (!messageEditID) {
       // Logic for sending the message
       setMessageText(''); // Clear the input field
+      var [msgDocRef, msgSendError] = await addMessageToFirestore(
+        collection(db, groupChannelRef.path + "/Messages"),
+        currentUser.uid,
+        userData.first_name,
+        txtToSend,
+        replyToID
+      )
+      setReplyToID(false);
+      var msgDoc = await getDoc(msgDocRef);
+      var msgDocData = msgDoc.data()
+      if(msgSendError) {
+        console.log("failed to send msg with error:" + msgSendError)
+      } else {console.log("sent message successfully")};
+      
+      //React re-renders when stateful variables change.
+      //However, for things like arrays, this is not always intuitive
+      //React needs to see a new reference to re-render.
+      //A slice with no arguments does the trick.
+      var updatedMessages = messages.slice(); 
+      updatedMessages.push(
+        {
+          id: msgDoc.id,
+          data: msgDocData}
+      );
+      setMessages(updatedMessages);
+    } else {
+      setMessageText(''); 
+      setReplyToID(false); //Note: Currently edits take priority over replies, needs proper state handling
+      const msgCollection = collection(db, groupChannelRef.path + "/Messages");
+      const msgRef = doc(msgCollection, messageEditID);
+      const msgDoc = await getDoc(msgRef)
+      if(msgDoc.exists()) {
+        var msgDocData = msgDoc.data();
+        msgDocData.content = txtToSend;
+        msgDocData.lastChanged = serverTimestamp();
+        await setDoc(msgRef, msgDocData);
+      } else {console.log("message to edit does not exist!")}
+
+      var messageLocalIndex;
+      var messageObjToUpdate = messages.filter((el, index) => {
+        messageLocalIndex = index;
+        return el.id == messageEditID;
+      })
+      // var messageLocalIndex = messages.indexOf(messageObjToUpdate) 
+      // console.log(messageObjToUpdate);
+      var updatedMessages = messages.slice();
+      updatedMessages[messageLocalIndex].data.content = txtToSend;
+      setMessages(updatedMessages);
+      setMessageEditID(false);
     }
   };
   
@@ -157,49 +240,136 @@ const Dashboard = () => {
       // console.log(el + ":" + el.title + "==" + e.target.value);
       return el.title == e.target.value;
     })
+    let currRef;
     console.log(groupData[0]);
-    const groupChannelRef = (groupData.length > 0) ? groupData[0].channels[0] : null;
-
+    
+    console.log(groupData.length > 0);
+    currRef = (groupData.length > 0) ? groupData[0].channels[0] : null
+    console.log(currRef);
+    setGroupChannelRef( currRef ); 
+    //note: setstate functions are async, so there is no guarantee 
+    //that they are set right after calling
     console.log(groupChannelRef);
-    var messageArray= [];
+    // var messageArray= [];
 
-    if (groupChannelRef != null) {
-      const channelDataDoc =  await getDoc(groupChannelRef);
+    if (currRef != null) {
+      const channelDataDoc =  await getDoc(currRef);
       const channelData = channelDataDoc.data()
-      const channelSubCollection = collection(db, groupChannelRef.path + "/Messages");
+      const channelSubCollection = collection(db, currRef.path + "/Messages");
       const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
       console.log(channelSubCollection);
       console.log(channelData);
       console.log(q);
       const channelMessagesSnapshot = await getDocs(q);
       console.log(channelMessagesSnapshot);
-      channelMessagesSnapshot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
-        messageArray.push({
-          id: doc.id,
-          data: doc.data()}
-        )
-      })
+      // channelMessagesSnapshot.forEach((doc) => {
+      //   console.log(doc.id, " => ", doc.data());
+      //   messageArray.push({
+      //     id: doc.id,
+      //     data: doc.data()}
+      //   )
+      // })
+      updateMessages(channelMessagesSnapshot);
+    } else {
+      setError("Group has no channels!")
+      setMessages([]);
+    };
 
-      
-    }
-
-    setMessages(messageArray);
+    // setMessages(messageArray);
 
   }
 
+  function updateMessages(qSnapshot) {
+    var messageArray = [];
+    qSnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+      messageArray.push({
+        id: doc.id,
+        data: doc.data()}
+      )
+    })
+    setMessages(messageArray)
+  }
+
+
+
   
 function ChatMessage(props) {
-  const { content, timestamp } = props.message;
+  const { content, timestamp, uid, userDisplayName, replyToID } = props.message;
+  var lastChanged = null;
+  if ('lastChanged' in props.message && props.message.lastChanged) {
+    lastChanged = props.message.lastChanged
+    var lastChangedTime = lastChanged.toDate();
+    var formattedLastChanged = lastChangedTime.toLocaleDateString() + ' ' + lastChangedTime.toLocaleTimeString()
+  }
+  const id = props.id;
   const time = timestamp.toDate();
-  const formattedTime = time.toISOString();
+  const formattedTime = time.toLocaleDateString() + ' ' + time.toLocaleTimeString();
 
-  // const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
+  const messageClass = (uid === currentUser.uid) ? 'sender' : 'receiver';
+  var replyData;
+
+  if(replyToID && replyToID != '' && groupChannelRef) {
+    let localFetchReplyToMessages = messages.filter((el) => (el.id == replyToID));
+    replyData = localFetchReplyToMessages[0].data;
+    // console.log("for reply " + replyToID + "<-" + id + ",got data:" + JSON.stringify(replyData));
+  }
+
+  // Refs for scrolling
+  const messageRefs = useRef({});
+
+  // Scroll handler, not sure if this works
+  const scrollToMessage = (messageId) => {
+      if (messageRefs.current[messageId]) {
+          messageRefs.current[messageId].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+  };
 
   return (<>
-    {/* <div className={`message ${messageClass}`}> */}
-    <div className={`message`}>
-      <p>{content} - {formattedTime}</p>
+    <div className={`message-container ${messageClass}`} id = {id}>
+      {(replyToID && replyData) ? (
+        <div 
+            // key={reply.id} 
+            className="reply-preview" 
+            onClick={() => scrollToMessage(replyToID)} >
+            <div className="reply-preview-content">
+              ↪{replyData.content.slice(0, 50)}
+            </div>
+            <div className="reply-preview-time">
+                {(replyData.timestamp.toDate()).toLocaleTimeString()}
+            </div>
+        </div>
+      ) : <></>}
+
+      <div ref={el => messageRefs.current[id] = el} className="message-content">
+          
+          <div className="message-header">
+            <div className="message-avatar">
+              {/* <img src="avatar.png" alt="User Avatar" /> */}
+            </div>
+            <span className="message-username">{userDisplayName}</span>
+            <span className="message-time">{formattedTime} 
+              {(lastChanged && (time.getTime() != lastChangedTime.getTime())) ? <> - Edited {formattedLastChanged}</> : <></>}</span>
+          </div>
+          
+          
+          <div className="message-text">
+            {content}
+          </div>
+
+          {/* Hover buttons */}
+          <div className="message-buttons">
+            <button className="message-button" onClick={() => setReplyToID(id)}>
+              Reply
+            </button>
+            {(uid === currentUser.uid) ? 
+              <button className="message-button" onClick={() => setMessageEditID(id) }>
+              Edit
+            </button> : <></>} 
+            {/* maybe I should not be using ternary operators this way? - Jamie 11/10 */}
+            {/* Add more buttons if needed */}
+          </div>
+      </div>
     </div>
   </>)
 }
@@ -208,9 +378,20 @@ function ChatMessage(props) {
     navigate('/dashboard/@me'); // Navigate to the future activity dashboard page
   };
 
+  const clearError = () => {
+    setError(null);
+  }
+
   return (
     <div className="dashboard">
-      {error && <p className="error">{error}</p>}
+      {error && 
+        <div className="error">
+          {error}
+          <button className="dashboard-button" onClick={clearError}>
+            Clear Error
+          </button>
+        </div>
+      }
  
       {/* Friends Sidebar */}
       <div className={`sidebar friends ${isSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
@@ -290,7 +471,9 @@ function ChatMessage(props) {
           <ToastContainer />
         </div>
         <div className="message-area">
-          {(messages ? messages.map(msg => <ChatMessage key={msg.id} message={msg.data} />) : (<p>Messages will be here...</p>))}
+          {((messages && messages.length > 0) ? messages.map(msg => 
+            <ChatMessage key={msg.id} id={msg.id} message={msg.data} 
+          />) : (<p>Messages will be here...</p>))}
 
           <div className="chat-input-container">
           {/* File Upload Button */}
@@ -308,8 +491,16 @@ function ChatMessage(props) {
             />
             {/* Send Button */}
             <button className="send-btn" onClick={handleSendMessage}>
-              Send {/* Replace with an icon if desired */}
+              {messageEditID ? <>Edit</> : <>Send</>} {/* Replace with an icon if desired */}
+
+            
             </button>
+            {messageEditID ? <button className="send-btn" onClick={() => {
+              setMessageEditID(false);
+              setMessageText('');
+              }}>
+              Cancel
+            </button> : <></> }
 
             {/* Group Activities Button */}
             <button className="group-activities-btn" onClick={toggleGroupActivities}>
