@@ -188,7 +188,7 @@ h2,body {
 
 /* Area 2: Main Chat Area */
 .main-content {
-  width: 100%;
+  width: 95%;
   background-color: #333333;
   color: white;
   display: flex;
@@ -1105,7 +1105,8 @@ button:disabled {
 
 /* Message content area */
 .message-content {
-  max-width: 100%;
+  /* max-width: 100%; */
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1140,16 +1141,17 @@ button:disabled {
   padding: 8px 12px;
   border-radius: 8px;
   white-space: pre-wrap; /* To preserve line breaks */
+  text-align: left;
 }
 
 /* Example for right-aligned messages (for sender vs. receiver) */
 .message-container.sender .message-text {
-  background-color: #d9fdd3; /* A light green */
+  background-color: #68BBE3;
   align-self: flex-end;
 }
 
 .message-container.sender .message-username {
-  color: #1b5e20; /* Dark green for sender's name */
+  color: #055C9D;
 }
 
 /* Reply container */

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, setDoc, updateDoc, arrayRemove, arrayUnion, doc } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import './styles.css';
 
@@ -70,6 +70,14 @@ const GroupMaker = () => {
         pinnedMessageID: null,
         title: "General"
       });
+
+      const updateUser = await updateDoc(doc(db,"Users",userId),
+        {groups: arrayUnion(docRef)}
+      )
+
+      const updateGroup = await updateDoc(docRef,
+        {channels: arrayUnion(channelDocRef)}
+      )
 
       console.log("Group created with ID: ", docRef.id);
 

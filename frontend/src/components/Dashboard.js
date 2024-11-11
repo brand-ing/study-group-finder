@@ -100,7 +100,7 @@ const Dashboard = () => {
             let currData = curr.data();
             // console.log("curr: " + JSON.stringify(currData));
             gdata.push(currData);
-            groups.push(currData.title);
+            groups.push(currData.groupName);
           }
           console.log(gdata);
           setGroupArray(groups);
@@ -238,7 +238,7 @@ const Dashboard = () => {
     setSelectedGroup(e.target.value);
     var groupData = groupDataArray.filter(function (el) {
       // console.log(el + ":" + el.title + "==" + e.target.value);
-      return el.title == e.target.value;
+      return el.groupName == e.target.value;
     })
     let currRef;
     console.log(groupData[0]);
@@ -318,7 +318,7 @@ function ChatMessage(props) {
   // Refs for scrolling
   const messageRefs = useRef({});
 
-  // Scroll handler, not sure if this works
+  // Scroll handler, need to fix
   const scrollToMessage = (messageId) => {
       if (messageRefs.current[messageId]) {
           messageRefs.current[messageId].scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -512,13 +512,13 @@ function ChatMessage(props) {
 
 
       {/* Notifications Dropdown */}
-      {showNotifications && (
+      {/* {showNotifications && (
         <div className="notifications-dropdown">
           <div className="notification-item">Notification 1</div>
           <div className="notification-item">Notification 2</div>
           <div className="notification-item">Notification 3</div>
         </div>
-      )}
+      )} */}
 
 
       {/* Right Sidebar */}
