@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { arrayUnion,updateDoc, serverTimestamp, onSnapshot, doc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -17,6 +18,7 @@ const JoinGroup = () => {
     const [groupCode, setGroupCode] = useState('');
     const [suggestedGroups, setSuggestedGroups] = useState(defaultGroups);
     const [currentUser, setCurrentUser] = useState();
+    const navigate = useNavigate();
 
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -95,6 +97,11 @@ const JoinGroup = () => {
       );
 
       alert(`Joined group with ID: ${groupId}`);
+      try {
+        navigate("/dashboard");
+      } catch(err) {
+
+      }
     };
   
     const onJoinWithCode = (code) => {

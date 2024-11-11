@@ -354,7 +354,7 @@ const ProfileSummary = ({prevStep, states}) => {
       {/* Schedule */}
       <div className="schedule-section">
         <h3>Schedule</h3>
-        <p>{states.availability}</p>
+        <p>{JSON.stringify(states.availability)}</p>
       </div>
       <div className="button-group">
         <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
