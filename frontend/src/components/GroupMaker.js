@@ -63,6 +63,14 @@ const GroupMaker = () => {
         groupEvents: [] // Empty initially; events can be added later
       });
 
+      const channelDocRef = await addDoc(collection(db, "Channels"),{
+        groupName: groupData.groupName,
+        groupID: docRef.id,
+        creationDate: serverTimestamp(),
+        pinnedMessageID: null,
+        title: "General"
+      });
+
       console.log("Group created with ID: ", docRef.id);
 
       // Call onCreateGroup with the newly created group data if needed
