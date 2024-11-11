@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, setDoc, updateDoc, arrayRemove, arrayUnion, doc } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import './styles.css';
 
@@ -62,6 +62,22 @@ const GroupMaker = () => {
         groupAvatar: "", // Optional: you can add a default avatar or let the user upload one
         groupEvents: [] // Empty initially; events can be added later
       });
+
+      const channelDocRef = await addDoc(collection(db, "Channels"),{
+        groupName: groupData.groupName,
+        groupID: docRef.id,
+        creationDate: serverTimestamp(),
+        pinnedMessageID: null,
+        title: "General"
+      });
+
+      const updateUser = await updateDoc(doc(db,"Users",userId),
+        {groups: arrayUnion(docRef)}
+      )
+
+      const updateGroup = await updateDoc(docRef,
+        {channels: arrayUnion(channelDocRef)}
+      )
 
       console.log("Group created with ID: ", docRef.id);
 

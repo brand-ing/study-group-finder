@@ -188,7 +188,7 @@ h2,body {
 
 /* Area 2: Main Chat Area */
 .main-content {
-  width: 100%;
+  width: 95%;
   background-color: #333333;
   color: white;
   display: flex;
@@ -201,8 +201,18 @@ h2,body {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  /* justify-content: flex-end; */ /*disabled for now because it breaks overflow/scrolling*/
+  flex-grow: 1;
+  overflow-y: auto; /* Enables vertical scroll only in this container */
+  overflow-x: hidden;
+  word-wrap: break-word;
 }
+
+/* .message-area>* {
+  box-sizing: border-box;
+  max-width: 100%;
+  flex-grow: 1;
+} */
 
 .chat-input-container {
   display: flex;
@@ -1071,4 +1081,139 @@ button.create-group-btn:active {
 button:disabled {
   background-color: #ddd;
   cursor: not-allowed;
+}
+
+/* Message box area rules */
+/* Main message container */
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column; /* Stack items vertically */
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  position: relative; /*Needed for buttons to position relative to these divs when they use absolute*/
+}
+
+/* Profile image, optional */
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  background-color: #c4c4c4; /* Placeholder color */
+}
+
+/* Message content area */
+.message-content {
+  /* max-width: 100%; */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Username styling */
+.message-username {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.9rem;
+  margin-right: 8px;
+}
+
+/* Timestamp styling */
+.message-time {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Flexbox container for username and timestamp */
+.message-header {
+  display: flex;
+  align-items: center;
+}
+
+/* Chat message text */
+.message-text {
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #444;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  white-space: pre-wrap; /* To preserve line breaks */
+  text-align: left;
+}
+
+/* Example for right-aligned messages (for sender vs. receiver) */
+.message-container.sender .message-text {
+  background-color: #68BBE3;
+  align-self: flex-end;
+}
+
+.message-container.sender .message-username {
+  color: #055C9D;
+}
+
+/* Reply container */
+.reply-preview {
+  display: flex;
+  flex-direction:row;
+  background-color: #f0f0f0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border-left: 3px solid #ccc; /* Visual indicator for reply */
+  cursor: pointer; /* Indicates it's clickable */
+}
+
+.reply-preview:hover {
+  background-color: #e8e8e8; /* Change on hover to show interactivity */
+}
+
+.reply-preview-content {
+  font-size: 0.85rem;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Ensure the text stays short */
+  margin-bottom: 4px;
+}
+
+.reply-preview-time {
+  font-size: 0.75rem;
+  color: #888;
+  text-align: right;
+  margin-left: 4px;
+}
+
+/*buttons that show up on a message on hover, such as Reply*/
+.message-buttons {
+  position:absolute;
+  top: 8px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  opacity: 0; /* Start hidden */
+  transition: opacity 0.2s ease;
+}
+
+/* Show buttons on hover */
+.message-container:hover .message-buttons {
+  opacity: 1;
+}
+
+/* Individual button styling */
+.message-button {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.message-button:hover {
+  background-color: #0056b3;
 }
