@@ -8,6 +8,11 @@ import { auth, db } from './firebaseConfig';
 import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
 
 import './styles.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Message from './Message';
+
+const notify = () => toast("Here is your toast.");
 
   async function fetchFirestoreUserData(user) {
     var error;
@@ -141,6 +146,7 @@ const Dashboard = () => {
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
+    toast("test notification"); // testing to see if a notification will appear if the bell icon is clicked
   };
 
   async function handleGroupChange(e){
@@ -261,6 +267,7 @@ function ChatMessage(props) {
         </div>
       </div>
 
+
       {/* Main Chat Area */}
       <div className="main-content">
         <div className="header">
@@ -280,6 +287,7 @@ function ChatMessage(props) {
           <button className="notification-btn notifications-toggle" onClick={toggleNotifications}>
             <FiBell size={20} />
           </button>
+          <ToastContainer />
         </div>
         <div className="message-area">
           {(messages ? messages.map(msg => <ChatMessage key={msg.id} message={msg.data} />) : (<p>Messages will be here...</p>))}
@@ -310,6 +318,8 @@ function ChatMessage(props) {
           </div>
         </div>
       </div>
+
+
       {/* Notifications Dropdown */}
       {showNotifications && (
         <div className="notifications-dropdown">
@@ -318,6 +328,8 @@ function ChatMessage(props) {
           <div className="notification-item">Notification 3</div>
         </div>
       )}
+
+
       {/* Right Sidebar */}
       <div className="sidebar notifications">
         <div className="notification-box"></div>
