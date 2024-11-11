@@ -28,22 +28,34 @@ const MyPage = () => {
     }
     return (
         <div>
-            <h1> Welcome, User! </h1>
-            <div>
-                <button onClick={goToDash}>
-                    Back to Dashboard
-                </button>
+            <h1 className="welcome-header"> Welcome, User! </h1>
+            <div className="nav-section">
                 <p>Navigation Cards/Buttons for Groups</p>
-                <button onClick={goToJoinGroup}>
-                    Join a Group
-                </button>
-                <button onClick={goToCreateGroup}>
-                    Create a Group
-                </button>
-                <p>Suggestions</p>
-                <p>Notifications</p>
-                <p>Friends</p>
+                <div className="group-buttons">
+                    <button className="nav-card" onClick={goToJoinGroup}>
+                        Join a Group
+                    </button>
+                    <button className="nav-card" onClick={goToCreateGroup}>
+                        Create a Group
+                    </button>
+                </div>
             </div>
+                <div className="section">
+                    <p className="section-title">Suggestions</p>
+                </div>
+
+                <div className="section">
+                    <p className="section-title">Notifications</p>
+                </div>
+
+                <div className="section">
+                    <p className="section-title">Friends</p>
+                </div>
+                <div>
+                    <button className="back-button" onClick={goToDash}>
+                        Back to Dashboard
+                    </button>
+                </div>
         </div>
     );
 }

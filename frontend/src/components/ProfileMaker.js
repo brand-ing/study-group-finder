@@ -308,7 +308,7 @@ const ScheduleSelector = ({ nextStep, prevStep }) => {
   );
 };
 // Profile Summary page
-const ProfileSummary = ({prevStep}) => {
+const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor, bio, selectedInterests, schedule}) => {
   const navigate = useNavigate();
   const completeProfile = async () => {
     try {
@@ -325,10 +325,42 @@ const ProfileSummary = ({prevStep}) => {
       }
   };
   return (
-  <div className="button-group">
-    <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
-    <button className="back-btn" onClick={prevStep}>Back</button>
-  </div>
+    <div className="profile-summary">
+      <h1 className="profile-summary-title">Profile Summary</h1>
+      <div className="profile-header">
+        <img src={profilePicture} alt={`${name}'s Profile`} className="profile-picture" style={{ borderColor: highlightColor }} />
+        <h2>{name}</h2>
+      </div>
+
+      {/* Gender */}
+      <p><strong>Gender:</strong> {gender}</p>
+
+      {/* Bio */}
+      <div className="bio-section">
+        <h3>Bio</h3>
+        <p>{bio}</p>
+      </div>
+
+      {/* Interests
+      <div className="interests-section">
+        <h3>Interests</h3>
+        <ul>
+          {selectedInterests.map((interest, index) => (
+            <li key={index}>{interest}</li>
+          ))}
+        </ul>
+      </div> */}
+
+      {/* Schedule */}
+      <div className="schedule-section">
+        <h3>Schedule</h3>
+        <p>{schedule}</p>
+      </div>
+      <div className="button-group">
+        <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
+        <button className="back-btn" onClick={prevStep}>Back</button>
+      </div>
+    </div>
   );
 };
 //

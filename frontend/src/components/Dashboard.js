@@ -11,6 +11,7 @@ import './styles.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Message from './Message';
+import GroupActivities from './GroupActivities';
 
 const notify = () => toast("Here is your toast.");
 
@@ -503,9 +504,8 @@ function ChatMessage(props) {
             </button> : <></> }
 
             {/* Group Activities Button */}
-            <button className="group-activities-btn" onClick={toggleGroupActivities}>
-              📚 {/* Replace with an icon or image if desired */}
-            </button>
+            <GroupActivities /> 
+
           </div>
         </div>
       </div>

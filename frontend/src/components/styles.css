@@ -241,6 +241,56 @@ h2,body {
   height: 32px; /* Ensures the buttons aren’t too tall */
   width: 60px; /* Adjusts width as needed */
 }
+.group-activities-container {
+  position: relative;
+  display: inline-block;
+}
+
+.group-activities-btn {
+  font-size: 24px;
+  padding: 10px;
+  border: none;
+  background-color: #0073e6;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.group-activities-btn:hover {
+  background-color: #005bb5;
+}
+
+.group-activities-menu {
+  position: absolute;
+  top: 50px; /* Adjust based on button size and position */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  width: 150px;
+  z-index: 10;
+}
+
+.group-activities-menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.group-activities-menu li {
+  padding: 10px;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+.group-activities-menu li:hover {
+  background-color: #f0f0f0;
+}
 
 /* File Upload Button */
 .file-upload-btn {
@@ -715,13 +765,30 @@ input[type="password"] {
 }
 
 
-.profile-image {
+.profile-maker-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.image-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 120px;
   height: 120px;
-  border-radius: 50%;  /* Makes the image circular */
-  border: 5px solid transparent;  /* Default transparent border */
-  object-fit: cover;  /* Ensures the image is cropped correctly */
-  transition: border-color 0.3s ease;  /* Smooth transition when the border color changes */
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 20px auto;
+  background-color: #f0f0f0; /* Light background to indicate empty state */
+  border: 5px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .color-picker-container {
@@ -738,6 +805,7 @@ input[type="password"] {
 .avatars {
   display: flex;
   gap: 10px;
+  justify-content: center;
 }
 
 .avatar {
@@ -752,6 +820,7 @@ input[type="password"] {
 .avatar.selected {
   border-color: #FF6347; /* Highlight the selected avatar with default color */
 }
+
 
 .profile-maker-wrapper {
   display: flex;
@@ -1216,4 +1285,63 @@ button:disabled {
 
 .message-button:hover {
   background-color: #0056b3;
+}
+
+/* Dashboard/Me  */
+
+.welcome-header {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.nav-section {
+  margin: 20px 0;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #3498db;
+  margin-top: 20px;
+}
+
+.group-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.nav-card {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-card:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.back-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #2ecc71;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #27ae60;
 }
