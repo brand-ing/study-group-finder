@@ -432,7 +432,7 @@ function ChatMessage(props) {
       <FiUser size={24} />
     ) : (
       <>
-        <img src={userData.profile_picture} alt="Profile" className="profile-picture" />
+        <img src={userData?.profilePicture} alt="Profile" className="profile-picture" />
         <div className="profile-text">
           <span className="first-name">{userData.first_name}</span>
           <span className="username">{username}</span>
