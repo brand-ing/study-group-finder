@@ -514,58 +514,186 @@ h2,body {
 
 
 /*Landing Page */ 
+/* Landing Page Styling */
 
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #fafafa;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Navigation Bar */
 nav {
   display: flex;
-  max-height: 100px;
   align-items: center;
   justify-content: space-between;
-  background-color: #f1E37f; 
+  background-color: #000000; /* Darker shade for a more modern feel */
   color: white;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
 }
 
 nav ul {
-  list-style: none; /* Removes bullet points from list */
+  list-style: none; /* Removes bullet points */
   display: flex;
-  gap: 20px; 
-  margin: 0;
-  padding: 0;
+  gap: 30px; /* Increased gap for better spacing */
 }
 
 nav ul li {
   cursor: pointer;
   font-size: 18px;
   color: white;
-  transition: color 0.3s;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 nav ul li:hover {
-  color: #61dafb;
-}
-.hero-section{
-  margin: auto;
-}
-#hero-what{
-  font-size: 600%;
-  font-weight: 800;
+  color: #61dafb; /* Highlights on hover */
+  transform: scale(1.1); /* Subtle scale effect for hover */
 }
 
+/* Hero Section */
+.hero-section {
+  text-align: left;
+  padding: 1rem 3.5rem;
+  background-color: #000000; /* Darker shade for a more modern feel */
+  height: auto;
+  display: flex; /* Use flexbox for positioning */
+  flex-direction: column;
+  justify-content: center; /* Center the content vertically */
+}
+
+#hero-what {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Adds depth to the text */
+  margin-bottom: 20px;
+}
+
+.cta-statement {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #f1f1f1;
+  margin-bottom: 30px;
+  background-color: #000;
+}
+
+/* Call-to-Action Buttons */
 .cta-buttons {
   display: flex;
-  gap: 10px; 
-  
-}
-.cta-statement{
-    font-size: 250%;
+  justify-content: center;
+  gap: 20px;
 }
 
 .login-btn, .register-btn {
   font-size: 16px;
-  padding: 5px 25px;
-  border-radius: 25px;
+  padding: 12px 30px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s, transform 0.3s ease;
+}
+
+.login-btn {
+  background-color: #61dafb;
+  color: #fff;
+}
+
+.register-btn {
+  background-color: #4CAF50; /* Green color for positive action */
+  color: white;
+}
+
+.login-btn:hover{
+  background-color: #44b7d7; /* Slightly darker shade */
+  transform: translateY(-3px); /* Adds hover lift effect */
+}
+
+.register-btn:hover {
+  background-color: #337735; 
+  transform: translateY(-3px); 
+}
+
+.hero-btn {
+  font-size: 14px;                /* Smaller font size */
+  padding: 8px 20px;              /* Adjust padding to make the button smaller */
+  background-color: #fff;         /* White background */
+  color: #000;                    /* Black text */
+  border: 2px solid #000;         /* Black border */
+  border-radius: 25px;            /* Rounded corners */
+  font-weight: bold;              /* Bold text */
+  cursor: pointer;                /* Pointer cursor on hover */
+  transition: all 0.3s ease;      /* Smooth transition for hover effects */
+  text-transform: uppercase;      /* Uppercase text */
+}
+
+.hero-btn:hover {
+  background-color: #fff;         /* Black background on hover */
+  color: #000;                    /* White text on hover */
+  transform: scale(1.05);          /* Slightly increase the button size */
+  letter-spacing: 2px;            /* Add some spacing between letters */
+}
+
+.hero-btn:active {
+  transform: scale(0.98);         /* Slightly shrink when clicked */
+}
+
+footer{
+  background-color: #000;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+  nav {
+    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-section {
+    height: auto;
+    padding: 60px 20px;
+  }
+
+  #hero-what {
+    font-size: 4rem;
+  }
+
+
 }
 
 
+
+.google-signin-btn {
+  background-color: #4285f4;
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.google-signin-btn:hover {
+  background-color: #357ae8;
+}
+
+//
 .google-signin-btn {
   background-color: #4285f4;
   color: white;
@@ -590,33 +718,47 @@ nav ul li:hover {
   align-items: center;
   padding: 20px;
   gap: 20px;
+  background-color: #000;
 }
 
-.feature-container {
-  width: 90%;
-  max-width: 600px;
-  background-color: #f0f0f0; /* Light gray background */
-  padding: 20px;
-  display: grid;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.feature-container:hover {
-  transform: translateY(-5px);
+.features-section {
+  color: #fff;
 }
 
 .feature-container h3 {
   margin-top: 0;
-  color: #333; /* Dark gray color for title */
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: bold;
+  opacity: 0.4;
+  text-align: center;
+
 }
+
+.feature-container p {
+  color: #bbb;
+  font-size: 1rem;
+}
+.feature-container {
+  width: 90%;
+  max-width: 558px;
+  background-color: #222;
+  padding: 20px;
+  display: grid;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
 
 .feature-container p {
   color: #666; /* Medium gray color for description */
 }
-
-
 
 
 /* ProfileSettings.css */
@@ -674,6 +816,208 @@ input[type="password"] {
   font-size: 1rem;
   margin-top: 5px;
 }
+/* Register styling */
+
+.login-page, .register-page  {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #fff, #dad5d5);
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* Title and Tagline */
+.title-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title-long {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.tagline {
+    font-size: 18px;
+    color: #f4f4f4;
+}
+
+
+/* Styling the Title */
+.title {
+  font-family: 'DM Sans';
+  font-size: 5rem;  /* Make the title really big */
+  font-weight: bold;  /* Bold font */
+  color: #333;  /* Dark color for the title */
+  text-transform: uppercase;  /* Optional: make the title all caps */
+  margin: 0;  /* Remove default margin */
+  line-height: 1.2;  /* Adjust line height */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);  /* Optional: subtle shadow for emphasis */
+}
+
+a {
+  text-decoration: none;  /* Remove underline */
+  color: inherit;  /* Use the parent's text color */
+}
+
+/* Form Container */
+.form-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Input Fields */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #2575fc;
+    outline: none;
+}
+
+
+.password-container {
+  position: relative;
+  width: 300px;
+  margin: 0 auto;
+}
+
+.password-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.password-checker {
+  position: absolute;
+  top: 0;
+  left: 100%; /* Move the checker to the right side of the input */
+  margin-left: 10px; /* Space between the input and the checker */
+  width: 250px; /* Adjust the width if necessary */
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.password-checker p {
+  margin: 5px 0;
+}
+
+.password-checker p .valid {
+  color: green;
+}
+
+.password-checker p .invalid {
+  color: red;
+}
+/* I went crazy  */
+/* Button with Flame Effect */
+.flame-button {
+  position: relative;
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  color: #fff;
+  background: linear-gradient(45deg, #ff5f6d, #ffc371);
+  background-size: 200% 200%;
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: background-position 0.5s ease, box-shadow 0.3s ease;
+  animation: flameAnimation 1.5s infinite alternate;
+}
+
+/* Hover Animation for Flames */
+.flame-button:hover {
+  background-position: 100% 100%;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7), 0 0 25px rgba(255, 69, 0, 0.6);
+}
+
+/* Keyframes for Flame Effect */
+@keyframes flameAnimation {
+  0% {
+      background-position: 0% 0%;
+      text-shadow: 0 0 8px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.6);
+  }
+  50% {
+      background-position: 100% 100%;
+      text-shadow: 0 0 12px rgba(255, 140, 0, 0.7), 0 0 25px rgba(255, 69, 0, 0.5);
+  }
+  100% {
+      background-position: 0% 0%;
+      text-shadow: 0 0 8px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.7);
+  }
+}
+
+/* Add Glow on Focus */
+.flame-button:focus {
+  outline: none;
+  box-shadow: 0 0 20px rgba(255, 69, 0, 1), 0 0 30px rgba(255, 69, 0, 1);
+}
+
+
+/* Simple Button Style */
+.simple-button {
+    display: inline-block;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;  /* Dark gray text */
+    background-color: #f1f1f1;  /* Light gray background */
+    border: 2px solid #ccc;  /* Subtle border */
+    border-radius: 30px;
+    text-decoration: none;  /* Remove underline */
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Hover Effect */
+.simple-button:hover {
+    color: #fff;
+    background-color: #007bff;  /* Blue background on hover */
+    border-color: #007bff;  /* Matching border on hover */
+}
+
+/* Focus Style */
+.simple-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.6);  /* Subtle glow on focus */
+}
+
 
 .notification-settings-button {
   display: block;
@@ -748,6 +1092,16 @@ input[type="password"] {
   background-color: #f9f9f9;
   font-family: Arial, sans-serif;
 }
+
+.back-btn {
+  padding: 10px 20px; /* Add padding to the buttons */
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
 .next-btn {
   width: 100px;
   padding: 10px;
