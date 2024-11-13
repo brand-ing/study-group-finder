@@ -1,30 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAuth, updateProfile, updatePassword } from 'firebase/auth';
+import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { FaPencilAlt } from 'react-icons/fa';
 import './styles.css';
 
 const ProfileSettings = () => {
   const [displayName, setDisplayName] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
   const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState(null);
+  const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
 
   const navigate = useNavigate();
+  const auth = getAuth();
+  const db = getFirestore();
 
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      setUserId(user.uid);
+      loadProfile(user.uid);
+    }
+  }, []);
 
-  const handleSaveChanges = () => {
-    // Logic to save changes (e.g., API calls or state updates)
-    console.log("Changes saved!");
+  const loadProfile = async (uid) => {
+    const userDoc = doc(db, 'users', uid);
+    const docSnap = await getDoc(userDoc);
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      setDisplayName(userData.displayName || '');
+      setProfilePicture(userData.profilePicture || 'default-profile.png');
+    } else {
+      console.log("No such document!");
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    const user = auth.currentUser;
+    if (userId) {
+      const userDoc = doc(db, 'users', userId);
+      await updateDoc(userDoc, {
+        displayName,
+        profilePicture,
+      });
+
+      await updateProfile(user, { displayName });
+
+      if (password) {
+        await updatePassword(user, password);
+      }
+
+      console.log("Changes saved!");
+      alert("Profile updated successfully!");
+      setIsEditingDisplayName(false);
+    }
   };
 
   const handleDiscardChanges = () => {
-    // Logic to discard changes (e.g., reset to initial values)
-    setDisplayName('');
-    setProfilePicture(null);
+    loadProfile(userId);
     setPassword('');
+    setIsEditingDisplayName(false);
     console.log("Changes discarded!");
   };
 
   const handleProfilePictureChange = (e) => {
-    setProfilePicture(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setProfilePicture(e.target.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const goBackToDashboard = () => {
@@ -49,21 +95,36 @@ const ProfileSettings = () => {
             onChange={handleProfilePictureChange}
           />
         </div>
+
         <h3>Display Name:</h3>
-          <input
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
-      <h3>Password:</h3>
+        <div className="display-name-container">
+          {isEditingDisplayName ? (
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="profile-input"
+            />
+          ) : (
+            <span>{displayName}</span>
+          )}
+          <button
+            className="edit-button"
+            onClick={() => setIsEditingDisplayName(!isEditingDisplayName)}
+          >
+            <FaPencilAlt />
+          </button>
+        </div>
+
+        <h3>Password:</h3>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="profile-input"
         />
       </div>
 
-      {/* Notification Settings Section */}
       <div className="profile-section">
         <h3>Notification Settings</h3>
         <button className="notification-settings-button">
