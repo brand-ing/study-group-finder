@@ -693,7 +693,6 @@ footer{
   background-color: #357ae8;
 }
 
-//
 .google-signin-btn {
   background-color: #4285f4;
   color: white;
@@ -1575,6 +1574,12 @@ button:disabled {
 
 .message-container.sender .message-username {
   color: #055C9D;
+}
+
+/* Pending message */ 
+.message-container.sender.pending .message-text {
+  background-color: #3d6f88;
+  align-self: flex-end;
 }
 
 /* Reply container */

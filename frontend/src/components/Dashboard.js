@@ -103,7 +103,7 @@ const Dashboard = () => {
             gdata.push(currData);
             groups.push(currData.groupName);
           }
-          console.log(gdata);
+          // console.log(gdata);
           setGroupArray(groups);
           setGroupDataArray(gdata);
 
@@ -125,13 +125,17 @@ const Dashboard = () => {
   useEffect(() => {
     if(!groupChannelRef) {return;}
     const q = query(collection(db, groupChannelRef.path + "/Messages"), orderBy('timestamp'), limit(100));
+    //Event Listener
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      //TODO: find out how/where a SnapshotMetadata instance is returned
-      // const source = doc.metadata.hasPendingWrites ? "Local" : "Server"; 
-      updateMessages(querySnapshot);
+      //onSnapshot is fired immediately after local write, some data might be null
+      //we don't want to render null stuff
+      //https://firebase.google.com/docs/firestore/query-data/listen#events-local-changes
+      const local = querySnapshot.metadata.hasPendingWrites; 
+      
+      if (!local) {updateMessages(querySnapshot)};
     });
     return unsubscribe;
-  },[])
+  },[groupChannelRef])
 
 
 
@@ -169,8 +173,13 @@ const Dashboard = () => {
       updatedMessages.push(
         {
           id: msgDoc.id,
-          data: msgDocData}
+          data: msgDocData,
+          newlocal: true}
       );
+      console.log("new sent msg: " + JSON.stringify({
+        id: msgDoc.id,
+        data: msgDocData,
+        newlocal: true}));
       setMessages(updatedMessages);
     } else {
       setMessageText(''); 
@@ -235,22 +244,22 @@ const Dashboard = () => {
 
   async function handleGroupChange(e){
 
-    console.log(e.target.value)
+    console.log("Group changed to:" + e.target.value)
     setSelectedGroup(e.target.value);
     var groupData = groupDataArray.filter(function (el) {
       // console.log(el + ":" + el.title + "==" + e.target.value);
       return el.groupName == e.target.value;
     })
     let currRef;
-    console.log(groupData[0]);
+    // console.log(groupData[0]);
     
-    console.log(groupData.length > 0);
+    // console.log(groupData.length > 0);
     currRef = (groupData.length > 0) ? groupData[0].channels[0] : null
-    console.log(currRef);
+    // console.log(currRef);
     setGroupChannelRef( currRef ); 
     //note: setstate functions are async, so there is no guarantee 
     //that they are set right after calling
-    console.log(groupChannelRef);
+    console.log("Group ref grabbed" + currRef + "; statevar: " + groupChannelRef);
     // var messageArray= [];
 
     if (currRef != null) {
@@ -258,11 +267,11 @@ const Dashboard = () => {
       const channelData = channelDataDoc.data()
       const channelSubCollection = collection(db, currRef.path + "/Messages");
       const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
-      console.log(channelSubCollection);
-      console.log(channelData);
-      console.log(q);
+      // console.log(channelSubCollection);
+      // console.log(channelData);
+      // console.log(q);
       const channelMessagesSnapshot = await getDocs(q);
-      console.log(channelMessagesSnapshot);
+      console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
       // channelMessagesSnapshot.forEach((doc) => {
       //   console.log(doc.id, " => ", doc.data());
       //   messageArray.push({
@@ -282,13 +291,17 @@ const Dashboard = () => {
 
   function updateMessages(qSnapshot) {
     var messageArray = [];
+    var debugOutput = [];
     qSnapshot.forEach((doc) => {
-      console.log(doc.id, " => ", doc.data());
+      // console.log(doc.id, " => ", doc.data());
+      debugOutput.push("updateMessages msgdoc: " + doc.id + " => " + JSON.stringify(doc.data()))
       messageArray.push({
         id: doc.id,
-        data: doc.data()}
+        data: doc.data(),
+        newlocal: false}
       )
     })
+    console.log(debugOutput);
     setMessages(messageArray)
   }
 
@@ -304,10 +317,15 @@ function ChatMessage(props) {
     var formattedLastChanged = lastChangedTime.toLocaleDateString() + ' ' + lastChangedTime.toLocaleTimeString()
   }
   const id = props.id;
+  // console.log("timestamp " + timestamp + ";JSON string: " + JSON.stringify(timestamp));
   const time = timestamp.toDate();
   const formattedTime = time.toLocaleDateString() + ' ' + time.toLocaleTimeString();
 
   const messageClass = (uid === currentUser.uid) ? 'sender' : 'receiver';
+  // gets stuck as pending until reloading group, dunno why, will look at later but not important.
+  // const messageSubClass = (props.newlocal) ? 'pending' : ''; 
+  const messageSubClass = '';
+
   var replyData;
 
   if(replyToID && replyToID != '' && groupChannelRef) {
@@ -327,7 +345,7 @@ function ChatMessage(props) {
   };
 
   return (<>
-    <div className={`message-container ${messageClass}`} id = {id}>
+    <div className={`message-container ${messageClass} ${messageSubClass}`} id = {id}>
       {(replyToID && replyData) ? (
         <div 
             // key={reply.id} 
@@ -473,7 +491,7 @@ function ChatMessage(props) {
         </div>
         <div className="message-area">
           {((messages && messages.length > 0) ? messages.map(msg => 
-            <ChatMessage key={msg.id} id={msg.id} message={msg.data} 
+            <ChatMessage key={msg.id} id={msg.id} message={msg.data} newlocal={msg.newlocal} 
           />) : (<p>Messages will be here...</p>))}
 
           <div className="chat-input-container">

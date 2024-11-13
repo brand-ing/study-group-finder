@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from './firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
 
 import NavigateButton from './NavigateButton';
@@ -39,6 +39,7 @@ const Register = () => {
         phone_number: phoneNumber,
         password: hashedPassword, // Store the hashed password securely
         profileCompleted: false,
+        creation_date: serverTimestamp
       });
       
       setMessage('Registration successful!');
