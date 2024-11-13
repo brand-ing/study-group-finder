@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { updateDoc, serverTimestamp, onSnapshot, doc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 
 import { auth, db } from './firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, getAuth } from 'firebase/auth';
 import './styles.css';
 import ProfilePictureSetup from './ProfilePictureSetup';
 
@@ -13,6 +13,7 @@ const WelcomeMessage = ({ nextStep }) => {
   const [firstName, setFirstName] = useState(''); // State to hold the first name
   const [loading, setLoading] = useState(true); // To handle loading state
   const [error, setError] = useState(null); // To handle errors
+
 
   useEffect(() => {
     // Listen for auth state changes to get the user ID
@@ -30,7 +31,9 @@ const WelcomeMessage = ({ nextStep }) => {
     // Cleanup the listener on component unmount
     return unsubscribe;
   }, []);
-useEffect(() => {
+
+
+  useEffect(() => {
     // Only fetch data if userId is set
     if (userId) {
       const fetchUserData = async () => {
@@ -70,14 +73,51 @@ useEffect(() => {
 };
 
 
-const ProfileName = ({ name, setName, nextStep }) => (
-  <div className="profile-maker-container">
-    <h2>What’s your display name?</h2>
-    <h3>(You can change this later in settings.)</h3>
-    <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-    <button className="next-btn" onClick={nextStep}>Next</button>
-  </div>
-);
+
+// this code is VERY VERY messy but it works for now - Brandon 
+const ProfileName = ({ name, setName, nextStep }) => {
+  const [userId, setUserId] = useState(null); // Define userId state properly
+
+  useEffect(() => {
+    // Initialize Firebase Auth and retrieve the user ID on component mount
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUserId(currentUser.uid); // Set the user ID in state
+    } else {
+      console.warn('No user is signed in');
+    }
+  }, []);
+
+
+  const handleNextStep = async () => {
+    try {
+      // Save the display name as the username in the database
+      const userRef = doc(db, 'Users', userId); 
+      await updateDoc(userRef, { username: name });
+      console.log('Username updated successfully');
+
+      // Proceed to the next step in the profile maker
+      nextStep();
+    } catch (error) {
+      console.error('Error updating username:', error);
+    }
+  };
+
+  return (
+    <div className="profile-maker-container">
+      <h2>What’s your display name?</h2>
+      <h3>(You can change this later in settings.)</h3>
+      <input 
+        type="text" 
+        value={name} 
+        onChange={(e) => setName(e.target.value)} 
+      />
+      <button className="next-btn" onClick={handleNextStep}>Next</button>
+    </div>
+  );
+};
+
 
 const GenderSelector = ({ nextStep, currentStep, prevStep }) => (
   <div className="profile-maker-container">
