@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { signOut, getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { serverTimestamp, onSnapshot, doc, deleteDoc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
+import { serverTimestamp, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, deleteDoc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 // import 'firebase/firestore'
 import { auth, db } from './firebaseConfig';
 import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
@@ -14,6 +14,7 @@ import Message from './Message';
 // import GroupActivities from './GroupActivities';
 import PollCreator from './PollCreator';
 import PollMessageContent from './PollMessageContent.js';
+import FriendList from './FriendList.js';
 
 const notify = () => toast("Here is your toast.");
 
@@ -73,12 +74,13 @@ const Dashboard = () => {
   const [groupArray, setGroupArray] = useState([]);
   const navigate = useNavigate();
   const [selectedGroup, setSelectedGroup] = useState();
+  const [selectedChannel, setSelectedChannel] = useState();
   const [messages, setMessages] = useState();
   // put here to remove error message lol
   // i made a button... - Jamie 11/10
   const [messageText, setMessageText] = useState("");
   const [replyToID, setReplyToID] = useState(false);
-  const [groupChannelRef, setGroupChannelRef] = useState();
+  const [channelRef, setChannelRef] = useState();
   const [messageEditID, setMessageEditID] = useState(false);
   const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(true);
   const [newPollData, setNewPollData] = useState(); 
@@ -87,6 +89,9 @@ const Dashboard = () => {
   const [groupActivitiesMenuOpen, setGroupActivitiesMenuOpen] = useState(false);
   const [currGroupData, setCurrGroupData] = useState();
   const [currGroupOwner, setCurrGroupOwner] = useState();
+  const [currentFriend, setCurrentFriend] = useState(null);
+  // const friendList = userData.friendList || [];
+  const [friendList, setFriendList] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -119,6 +124,9 @@ const Dashboard = () => {
           setGroupArray(groups);
           setGroupDataArray(gdata);
 
+          if('friendList' in data) {
+            setFriendList(data.friendList);
+          }
         };
         fetchData();
         // ...
@@ -135,8 +143,8 @@ const Dashboard = () => {
   //Realtime updates for new messages from other users
   //https://firebase.google.com/docs/firestore/query-data/listen
   useEffect(() => {
-    if(!groupChannelRef) {return;}
-    const q = query(collection(db, groupChannelRef.path + "/Messages"), orderBy('timestamp'), limit(100));
+    if(!channelRef) {return;}
+    const q = query(collection(db, channelRef.path + "/Messages"), orderBy('timestamp'), limit(100));
     //Event Listener
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       //onSnapshot is fired immediately after local write, some data might be null
@@ -147,7 +155,7 @@ const Dashboard = () => {
       if (!local) {updateMessages(querySnapshot)};
     });
     return unsubscribe;
-  },[groupChannelRef])
+  },[channelRef])
 
 
 
@@ -164,7 +172,7 @@ const Dashboard = () => {
       // Logic for sending the message
       setMessageText(''); // Clear the input field
       var [msgDocRef, msgSendError] = await addMessageToFirestore(
-        collection(db, groupChannelRef.path + "/Messages"),
+        collection(db, channelRef.path + "/Messages"),
         currentUser.uid,
         userData.first_name,
         txtToSend,
@@ -197,7 +205,7 @@ const Dashboard = () => {
     } else {
       setMessageText(''); 
       setReplyToID(false); //Note: Currently edits take priority over replies, needs proper state handling
-      const msgCollection = collection(db, groupChannelRef.path + "/Messages");
+      const msgCollection = collection(db, channelRef.path + "/Messages");
       const msgRef = doc(msgCollection, messageEditID);
       const msgDoc = await getDoc(msgRef)
       if(msgDoc.exists()) {
@@ -225,7 +233,7 @@ const Dashboard = () => {
     var txtToSend = messageText.trim();
 
     var [msgDocRef, msgSendError] = await addMessageToFirestore(
-      collection(db, groupChannelRef.path + "/Messages"),
+      collection(db, channelRef.path + "/Messages"),
       currentUser.uid,
       userData.first_name,
       txtToSend,
@@ -281,6 +289,7 @@ const Dashboard = () => {
 
     console.log("Group changed to:" + e.target.value)
     setSelectedGroup(e.target.value);
+    setSelectedChannel(e.target.value);
     var groupData = groupDataArray.filter(function (el) {
       return el.groupName == e.target.value;
     })
@@ -294,7 +303,11 @@ const Dashboard = () => {
     //MESSY
     var groupData = (groupData.length > 0) ? groupData[0] : null;
     var groupOwnerRef = groupData.members[0];
-    var groupOwnerDoc = await getDoc(groupOwnerRef);
+    try{
+      var groupOwnerDoc = await getDoc(groupOwnerRef);
+    } catch(error) {
+      console.log("could not retrieve group owner doc:" + error);
+    }
 
     if(groupOwnerDoc) {setCurrGroupOwner(groupOwnerDoc.id)};
 
@@ -302,27 +315,49 @@ const Dashboard = () => {
     console.log("groupData.members[0]:" + JSON.stringify(groupOwnerRef));
 
 
-    setGroupChannelRef( currRef ); 
+    // setChannelRef( currRef ); 
+    handleChannelChange(currRef);
     //note: setstate functions are async, so there is no guarantee 
     //that they are set right after calling
-    console.log("Group ref grabbed" + currRef + "; statevar: " + groupChannelRef);
+    console.log("Group ref grabbed" + currRef + "; statevar: " + channelRef);
 
-    if (currRef != null) {
-      const channelDataDoc =  await getDoc(currRef);
-      const channelData = channelDataDoc.data()
-      const channelSubCollection = collection(db, currRef.path + "/Messages");
-      const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
+    // if (currRef != null) {
+    //   const channelDataDoc =  await getDoc(currRef);
+    //   const channelData = channelDataDoc.data()
+    //   const channelSubCollection = collection(db, currRef.path + "/Messages");
+    //   const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
 
-      const channelMessagesSnapshot = await getDocs(q);
-      console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
+    //   const channelMessagesSnapshot = await getDocs(q);
+    //   console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
 
-      updateMessages(channelMessagesSnapshot);
+    //   updateMessages(channelMessagesSnapshot);
+    // } else {
+    //   setError("Group has no channels!")
+    //   setMessages([]);
+    // };
+  }
+  async function handleChannelChange(ref) {
+    setChannelRef(ref);
+
+    if (ref != null) {
+      try{
+        const channelDataDoc =  await getDoc(ref);
+        const channelData = channelDataDoc.data()
+        const channelSubCollection = collection(db, ref.path + "/Messages");
+        const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
+
+        const channelMessagesSnapshot = await getDocs(q);
+        console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
+
+        updateMessages(channelMessagesSnapshot);
+      } catch(error) {
+        console.log("handleChannelChange: failed to load channel messages - " + error);
+      }
     } else {
       setError("Group has no channels!")
       setMessages([]);
     };
   }
-
   function updateMessages(qSnapshot) {
     var messageArray = [];
     var debugOutput = [];
@@ -362,7 +397,7 @@ const Dashboard = () => {
 
     var replyData;
 
-    if(replyToID && replyToID != '' && groupChannelRef) {
+    if(replyToID && replyToID != '' && channelRef) {
       let localFetchReplyToMessages = messages.filter((el) => (el.id == replyToID));
       replyData = localFetchReplyToMessages[0].data;
       // console.log("for reply " + replyToID + "<-" + id + ",got data:" + JSON.stringify(replyData));
@@ -496,7 +531,7 @@ const Dashboard = () => {
   }
 
   async function handleMessageDelete(msgID) {
-    const channelSubCollection = collection(db, groupChannelRef.path + "/Messages");
+    const channelSubCollection = collection(db, channelRef.path + "/Messages");
     const docRef = doc(db,channelSubCollection.path + '/' + msgID);
     try {
       await deleteDoc(docRef);
@@ -506,6 +541,128 @@ const Dashboard = () => {
       console.log("handleMessageDelete: docref- " + JSON.stringify(docRef));
     }
   }
+
+  // Firestore listener for friend requests
+  useEffect(() => {
+    if(!currentUser) {return}
+    const unsubscribe = onSnapshot(doc(db, 'Users', currentUser.uid), (docSnapshot) => {
+        const data = docSnapshot.data();
+        if (data && data.friendRequests) {
+            data.friendRequests.forEach(request => {
+                toast.info(
+                    <>
+                        <p>{request.name} sent you a friend request</p>
+                        <button onClick={() => acceptFriendRequest(request)}>Accept</button>
+                    </>
+                );
+            });
+        }
+    });
+
+    return unsubscribe;
+  }, [currentUser]);
+
+  // Function to accept a friend request
+  const acceptFriendRequest = async (request) => {
+      const userDocRef = doc(db, 'Users', currentUser.uid);
+      try {
+        addFriendToFirestore(request.uid);
+          await updateDoc(userDocRef, {
+              // friendList: arrayUnion(request.uid),
+              friendRequests: arrayRemove(request)
+          });
+          toast.success(`You are now friends with ${request.name}`);
+      } catch (error) {
+          console.error("Error accepting friend request:", error);
+      }
+  };
+
+  const handleAddFriendRequest = async (friendUid) => {
+    if (friendUid === currentUser.uid) {
+        toast.error("You cannot add yourself.");
+        return;
+    }
+
+    const friendDocRef = doc(db, 'Users', friendUid);
+    const currentUserDocRef = doc(db, 'Users', currentUser.uid);
+
+    try {
+        // Get the current user's name and other relevant data (assuming userData has name)
+        const currentUserSnap = await getDoc(currentUserDocRef);
+        const currentUserData = currentUserSnap.data();
+
+        if (currentUserData) {
+            await updateDoc(friendDocRef, {
+                friendRequests: arrayUnion({
+                    uid: currentUser.uid,
+                    name: currentUserData.name // Assuming user's name is in userData
+                })
+            });
+            toast.success("Friend request sent!");
+        } else {
+            toast.error("Failed to retrieve current user data.");
+        }
+    } catch (error) {
+        console.error("Error sending friend request:", error);
+        toast.error("Failed to send friend request.");
+    }
+  };
+
+
+  // Function to add a friend by UID
+  const addFriendToFirestore = async (friendUid) => {
+      if (friendUid === currentUser.uid) {
+          toast.error("You cannot add yourself.");
+          return;
+      }
+
+      const userDocRef = doc(db, 'Users', currentUser.uid);
+      const friendDocRef = doc(db, 'Users', friendUid);
+      var channelDocRef = null;
+      try{
+        channelDocRef = await addDoc(collection(db, "Channels"),{
+          groupName: null,
+          groupID: null,
+          creationDate: serverTimestamp(),
+          pinnedMessageID: null,
+          title: "General",
+          isDirectMessageChannel: true,
+          directMessageUserUids: [currentUser.uid,friendUid]
+        });
+      } catch(error) {
+        console.error("Error adding friend: Error during channel creation:", error)
+      }
+      try {
+          await updateDoc(userDocRef, {
+              friendList: arrayUnion(friendUid),
+              friendChannelList: arrayUnion(channelDocRef)
+          });
+          await updateDoc(friendDocRef, {
+            friendList: arrayUnion(friendUid),
+            friendChannelList: arrayUnion(channelDocRef)
+        });
+          toast.success("Friend added successfully!");
+      } catch (error) {
+          console.error("Error adding friend:", error);
+      }
+  };
+
+async function handleFriendClick(id) {
+  setCurrentFriend(id)
+  var i = userData.friendList.indexOf(id);
+  
+  try{
+    console.log("handleFriendClick: attempting to load DM channel for friend: " + id + ", index=" + i);
+    setChannelRef(userData.friendChannelList[i]);
+    const friendDoc = await getDoc(doc(db, 'Users', id))
+    const friendData = friendDoc.data();
+    const friendName = friendData.first_name;
+    console.log("handleFriendClick: name=" + friendName);
+    setSelectedChannel(friendName);
+  }catch(error) {
+    console.error("handleFriendClick: failed to load DM channel for friend" + id + ", index=" + i + "error: " + error);
+  }
+}
 
   return (
     <div className="dashboard">
@@ -550,6 +707,14 @@ const Dashboard = () => {
           <div className="friend-circle add-new">+</div>
         </div> */}
 
+        <FriendList 
+          friendList={friendList} 
+          setCurrentFriend={handleFriendClick} 
+          handleAddFriendRequest={handleAddFriendRequest} 
+          sidebarOff={isSidebarCollapsed}
+          setSideBar={setIsSidebarCollapsed}
+        />
+
         {/* Profile Box */}
         <div className="profile-box" onClick={() => setShowDropdown(!showDropdown)}>
         <div className="profile-info">
@@ -589,7 +754,7 @@ const Dashboard = () => {
             <option>Group Beta</option>
             <option>Group Gamma</option>
           </select>
-          <h3 className="group-name">{selectedGroup}</h3>
+          <h3 className="group-name">{selectedChannel}</h3>
                     {/* Notifications Button */}
           <button className="notification-btn notifications-toggle" onClick={toggleNotifications}>
             <FiBell size={20} />
