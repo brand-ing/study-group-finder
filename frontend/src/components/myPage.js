@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GroupFinder } from './GroupFinder';
 
 const MyPage = () => {
     const navigate = useNavigate();
@@ -27,37 +28,49 @@ const MyPage = () => {
           }
     }
     return (
-        <div>
+        <div className="group-dashboard">
             <h1 className="welcome-header"> Welcome, User! </h1>
-            <div className="nav-section">
-                <p>Navigation Cards/Buttons for Groups</p>
-                <div className="group-buttons">
-                    <button className="nav-card" onClick={goToJoinGroup}>
+            <div className="bento-grid">
+                {/* Navigation Cards/Buttons */}
+
+                <div className="nav-section">
+                    <button className="nav-card join-button" onClick={goToJoinGroup}>
                         Join a Group
                     </button>
-                    <button className="nav-card" onClick={goToCreateGroup}>
+                    <button className="nav-card create-button" onClick={goToCreateGroup}>
                         Create a Group
                     </button>
+                    {/* <button className="nav-card joined-button" onClick={goToJoinedGroups}>
+                        Joined Groups
+                    </button> */}
+                {/* Suggestions Section */}
+                <div className="section suggestions">
+                <p className="section-title">Suggestions</p>
+                </div>
+
+                {/* Notifications Section */}
+                <div className="section notifications">
+                <p className="section-title">Notifications</p>
+                </div>
+
+                {/* Friends Section */}
+                <div className="section friends">
+                <p className="section-title">Friends</p>
+                </div>
+                {/* Block List Section */}
+                <div className="section block">
+                <p className="section-title">Blocked</p>
                 </div>
             </div>
-                <div className="section">
-                    <p className="section-title">Suggestions</p>
-                </div>
 
-                <div className="section">
-                    <p className="section-title">Notifications</p>
-                </div>
-
-                <div className="section">
-                    <p className="section-title">Friends</p>
-                </div>
-                <div>
-                    <button className="back-button" onClick={goToDash}>
-                        Back to Dashboard
-                    </button>
-                </div>
-        </div>
-    );
-}
+            <div className="back-section">
+                <button className="back-button" onClick={goToDash}>
+                Back to Dashboard
+                </button>
+            </div>
+    </div>
+    </div>
+  );
+};
 
 export default MyPage;

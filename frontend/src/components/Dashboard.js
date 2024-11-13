@@ -4,14 +4,19 @@ import { signOut, getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { serverTimestamp, onSnapshot, doc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 // import 'firebase/firestore'
-import { auth, db } from './firebaseConfig';
-import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
+import { auth, db, storage } from './firebaseConfig';
+import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight, FiCoffee , FiHash, FiUsers , FiCalendar, FiFile } from 'react-icons/fi'; // Importing icons
 
 import './styles.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Message from './Message';
 import GroupActivities from './GroupActivities';
+
+// file upload
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
+
 
 const notify = () => toast("Here is your toast.");
 
@@ -55,7 +60,11 @@ const notify = () => toast("Here is your toast.");
     return [msgDocRef, error];
   }
 
+  
 
+  
+  
+  
 const Dashboard = () => {
   const [error, setError] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -69,6 +78,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [selectedGroup, setSelectedGroup] = useState();
   const [messages, setMessages] = useState();
+  const [activeSection, setActiveSection] = useState('discussion');
   // put here to remove error message lol
   // i made a button... - Jamie 11/10
   const [messageText, setMessageText] = useState("");
@@ -137,8 +147,51 @@ const Dashboard = () => {
 
   // Putting event handlers for chat here for now...
   
-  const handleFileUpload = () => {
-    // Logic for file upload
+  const handleFileUpload = async (groupId, userId) => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "application/pdf,image/*";
+  
+    fileInput.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+  
+      try {
+        const storageRef = ref(storage, `uploads/${groupId}/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+  
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log("Upload is " + progress + "% done");
+          },
+          (error) => {
+            console.error("Upload failed:", error);
+          },
+          async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log("File available at", downloadURL);
+  
+            // Reference to the group's uploads subcollection
+            const uploadsCollectionRef = collection(db, "Groups", groupId, "uploads");
+  
+            await addDoc(uploadsCollectionRef, {
+              url: downloadURL,
+              name: file.name,
+              uploadedBy: userId,
+              uploadedAt: serverTimestamp(),
+            });
+  
+            alert("File uploaded successfully!");
+          }
+        );
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
+    };
+  
+    fileInput.click();
   };
   
   async function handleSendMessage() {
@@ -399,6 +452,14 @@ function ChatMessage(props) {
         <button className="dashboard-button" onClick={goToDashboard}>
           <FiHome className="button-icon" /> 
         </button>
+        <select className="group-select" onChange={handleGroupChange} value={selectedGroup}>
+            {/* {userData.groups ? userData.groups.map((item, index) => (
+              <option>{item}</option>
+            )) : <option>Failed to load</option>
+            } */}
+           {groupArray.map((el, index) => 
+              React.createElement('option', { key: index }, el))}
+          </select>
         <div className="sidebar-header">
           {!isSidebarCollapsed ? (
             <input 
@@ -453,23 +514,30 @@ function ChatMessage(props) {
       {/* Main Chat Area */}
       <div className="main-content">
         <div className="header">
-          <select className="group-select" onChange={handleGroupChange} value={selectedGroup}>
-            {/* {userData.groups ? userData.groups.map((item, index) => (
-              <option>{item}</option>
-            )) : <option>Failed to load</option>
-            } */}
-           {groupArray.map((el, index) => 
-              React.createElement('option', { key: index }, el))}
-            <option>Group Alpha</option>
-            <option>Group Beta</option>
-            <option>Group Gamma</option>
-          </select>
           <h3 className="group-name">{selectedGroup}</h3>
-                    {/* Notifications Button */}
+
+          {/* Notifications Button */}
           <button className="notification-btn notifications-toggle" onClick={toggleNotifications}>
             <FiBell size={20} />
           </button>
           <ToastContainer />
+          <ul className="section-nav">
+            <li onClick={() => setActiveSection('discussion')} className={activeSection === 'discussion' ? 'active' : ''}>
+              <FiCoffee  title="Discussion Board" />
+            </li>
+            <li onClick={() => setActiveSection('channels')} className={activeSection === 'channels' ? 'active' : ''}>
+              <FiHash title="Channels" />
+            </li>
+            <li onClick={() => setActiveSection('classlist')} className={activeSection === 'classlist' ? 'active' : ''}>
+              <FiUsers  title="Classlist" />
+            </li>
+            <li onClick={() => setActiveSection('calendar')} className={activeSection === 'calendar' ? 'active' : ''}>
+              <FiCalendar title="Calendar" />
+            </li>
+            <li onClick={() => setActiveSection('file')} className={activeSection === 'file' ? 'active' : ''}>
+              <FiFile title="Files" />
+            </li>
+          </ul>
         </div>
         <div className="message-area">
           {((messages && messages.length > 0) ? messages.map(msg => 
@@ -479,7 +547,7 @@ function ChatMessage(props) {
           <div className="chat-input-container">
           {/* File Upload Button */}
             <button className="file-upload-btn" onClick={handleFileUpload}>
-            📎  
+            +  
             </button>
             {/* Message Input Field */}
             <input
