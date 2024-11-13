@@ -50,7 +50,7 @@ const ProfilePictureSetup = ({ nextStep, currentStep, prevStep, setProfilePictur
     setProfilePicture(selectedImage);
   };
 
-  const handleSave = async () => {
+ const handleSave = async () => {
     if (image) {
       const file = dataURLToBlob(image);
       const imageUrl = await handleImageUpload(file);
@@ -63,7 +63,8 @@ const ProfilePictureSetup = ({ nextStep, currentStep, prevStep, setProfilePictur
 
   const dataURLToBlob = (dataUrl) => {
     const arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      bstr = atob(arr[1])
+    var n = bstr.length, u8arr = new Uint8Array(n);
     while (n--) u8arr[n] = bstr.charCodeAt(n);
     return new Blob([u8arr], { type: mime });
   };

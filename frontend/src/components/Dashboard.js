@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { signOut, getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { serverTimestamp, onSnapshot, doc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
+import { serverTimestamp, onSnapshot, doc, deleteDoc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 // import 'firebase/firestore'
 import { auth, db } from './firebaseConfig';
 import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
@@ -11,49 +11,54 @@ import './styles.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Message from './Message';
-import GroupActivities from './GroupActivities';
+// import GroupActivities from './GroupActivities';
+import PollCreator from './PollCreator';
+import PollMessageContent from './PollMessageContent.js';
 
 const notify = () => toast("Here is your toast.");
 
-  async function fetchFirestoreUserData(user) {
-    var error,userData;
-    try{
-      var userDocRef = doc(db, 'Users', user.uid); // Use the UID instead of email
-      var userDoc = await getDoc(userDocRef);
-      userData = userDoc.data();
-    } catch(err) {
-      error = err;
-    }
-    return [userData, error];
+async function fetchFirestoreUserData(user) {
+  var error,userData;
+  try{
+    var userDocRef = doc(db, 'Users', user.uid); // Use the UID instead of email
+    var userDoc = await getDoc(userDocRef);
+    userData = userDoc.data();
+  } catch(err) {
+    error = err;
   }
+  return [userData, error];
+}
 
-  async function fetchFirestoreDoc(ref) { //Why did I make this?
-    var error,doc,docData;
-    try{
-      doc = await getDoc(ref);
-      docData = doc.data();
-    } catch(err) {
-      error = err;
-    }
-    return [docData, error];
-  } 
-
-  async function addMessageToFirestore(msgCollection,uid,userDisplayName, content, replyToID ) {
-    var error,msgDocRef;
-    try{
-      msgDocRef = await addDoc(msgCollection,{
-        timestamp: serverTimestamp(),
-        content: content,
-        replyToID: replyToID,
-        uid: uid,
-        userDisplayName: userDisplayName,
-        lastChanged: serverTimestamp()
-      });
-    } catch(err) {
-      error = err;
-    }
-    return [msgDocRef, error];
+async function fetchFirestoreDoc(ref) { //Why did I make this?
+  var error,doc,docData;
+  try{
+    doc = await getDoc(ref);
+    docData = doc.data();
+  } catch(err) {
+    error = err;
   }
+  return [docData, error];
+} 
+
+async function addMessageToFirestore(msgCollection,uid,userDisplayName, content, replyToID, hasSpecial = false, specialData=null ) {
+  var error,msgDocRef;
+  try{
+    msgDocRef = await addDoc(msgCollection,{
+      timestamp: serverTimestamp(),
+      content: content,
+      replyToID: replyToID,
+      uid: uid,
+      userDisplayName: userDisplayName,
+      lastChanged: serverTimestamp(),
+      hasSpecial: hasSpecial,
+      specialData: specialData
+    });
+  } catch(err) {
+    error = err;
+    console.log("msg send err:" + error + " specialData: " + specialData + JSON.stringify(specialData)); 
+  }
+  return [msgDocRef, error];
+}
 
 
 const Dashboard = () => {
@@ -75,6 +80,13 @@ const Dashboard = () => {
   const [replyToID, setReplyToID] = useState(false);
   const [groupChannelRef, setGroupChannelRef] = useState();
   const [messageEditID, setMessageEditID] = useState(false);
+  const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(true);
+  const [newPollData, setNewPollData] = useState(); 
+  const [activeSideBar, setActiveSideBar] = useState('');
+
+  const [groupActivitiesMenuOpen, setGroupActivitiesMenuOpen] = useState(false);
+  const [currGroupData, setCurrGroupData] = useState();
+  const [currGroupOwner, setCurrGroupOwner] = useState();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -159,6 +171,7 @@ const Dashboard = () => {
         replyToID
       )
       setReplyToID(false);
+      console.log("message submited: " + JSON.stringify(msgDocRef));
       var msgDoc = await getDoc(msgDocRef);
       var msgDocData = msgDoc.data()
       if(msgSendError) {
@@ -207,6 +220,24 @@ const Dashboard = () => {
       setMessageEditID(false);
     }
   };
+
+  async function handleSendPollMessage(pollID) {
+    var txtToSend = messageText.trim();
+
+    var [msgDocRef, msgSendError] = await addMessageToFirestore(
+      collection(db, groupChannelRef.path + "/Messages"),
+      currentUser.uid,
+      userData.first_name,
+      txtToSend,
+      replyToID,
+      true,
+      {
+        pollID: pollID
+      }
+    )
+    console.log("Dashboard handleSendPollMessage: post message send attempt - " + JSON.stringify(msgDocRef) + " ; " + JSON.stringify(msgSendError));
+    return [msgDocRef, msgSendError];
+  }
   
   const toggleGroupActivities = () => {
     // Logic to open the group activities shelf
@@ -236,6 +267,10 @@ const Dashboard = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed); 
   };
 
+  const toggleRightSidebar = () => {
+    setIsRightSidebarCollapsed(!isRightSidebarCollapsed); 
+  };
+
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
@@ -247,46 +282,45 @@ const Dashboard = () => {
     console.log("Group changed to:" + e.target.value)
     setSelectedGroup(e.target.value);
     var groupData = groupDataArray.filter(function (el) {
-      // console.log(el + ":" + el.title + "==" + e.target.value);
       return el.groupName == e.target.value;
     })
     let currRef;
-    // console.log(groupData[0]);
-    
-    // console.log(groupData.length > 0);
+
+
+    //Whyyyyy
     currRef = (groupData.length > 0) ? groupData[0].channels[0] : null
-    // console.log(currRef);
+    setCurrGroupData((groupData.length > 0) ? groupData[0] : null)
+
+    //MESSY
+    var groupData = (groupData.length > 0) ? groupData[0] : null;
+    var groupOwnerRef = groupData.members[0];
+    var groupOwnerDoc = await getDoc(groupOwnerRef);
+
+    if(groupOwnerDoc) {setCurrGroupOwner(groupOwnerDoc.id)};
+
+
+    console.log("groupData.members[0]:" + JSON.stringify(groupOwnerRef));
+
+
     setGroupChannelRef( currRef ); 
     //note: setstate functions are async, so there is no guarantee 
     //that they are set right after calling
     console.log("Group ref grabbed" + currRef + "; statevar: " + groupChannelRef);
-    // var messageArray= [];
 
     if (currRef != null) {
       const channelDataDoc =  await getDoc(currRef);
       const channelData = channelDataDoc.data()
       const channelSubCollection = collection(db, currRef.path + "/Messages");
       const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
-      // console.log(channelSubCollection);
-      // console.log(channelData);
-      // console.log(q);
+
       const channelMessagesSnapshot = await getDocs(q);
       console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
-      // channelMessagesSnapshot.forEach((doc) => {
-      //   console.log(doc.id, " => ", doc.data());
-      //   messageArray.push({
-      //     id: doc.id,
-      //     data: doc.data()}
-      //   )
-      // })
+
       updateMessages(channelMessagesSnapshot);
     } else {
       setError("Group has no channels!")
       setMessages([]);
     };
-
-    // setMessages(messageArray);
-
   }
 
   function updateMessages(qSnapshot) {
@@ -307,91 +341,144 @@ const Dashboard = () => {
 
 
 
-  
-function ChatMessage(props) {
-  const { content, timestamp, uid, userDisplayName, replyToID } = props.message;
-  var lastChanged = null;
-  if ('lastChanged' in props.message && props.message.lastChanged) {
-    lastChanged = props.message.lastChanged
-    var lastChangedTime = lastChanged.toDate();
-    var formattedLastChanged = lastChangedTime.toLocaleDateString() + ' ' + lastChangedTime.toLocaleTimeString()
-  }
-  const id = props.id;
-  // console.log("timestamp " + timestamp + ";JSON string: " + JSON.stringify(timestamp));
-  const time = timestamp.toDate();
-  const formattedTime = time.toLocaleDateString() + ' ' + time.toLocaleTimeString();
+    
+  function ChatMessage(props) {
+    const { content, timestamp, uid, userDisplayName, replyToID } = props.message;
+    var lastChanged = null;
+    if ('lastChanged' in props.message && props.message.lastChanged) {
+      lastChanged = props.message.lastChanged
+      var lastChangedTime = lastChanged.toDate();
+      var formattedLastChanged = lastChangedTime.toLocaleDateString() + ' ' + lastChangedTime.toLocaleTimeString()
+    }
+    const id = props.id;
+    // console.log("timestamp " + timestamp + ";JSON string: " + JSON.stringify(timestamp));
+    const time = timestamp.toDate();
+    const formattedTime = time.toLocaleDateString() + ' ' + time.toLocaleTimeString();
 
-  const messageClass = (uid === currentUser.uid) ? 'sender' : 'receiver';
-  // gets stuck as pending until reloading group, dunno why, will look at later but not important.
-  // const messageSubClass = (props.newlocal) ? 'pending' : ''; 
-  const messageSubClass = '';
+    const messageClass = (uid === currentUser.uid) ? 'sender' : 'receiver';
+    // gets stuck as pending until reloading group, dunno why, will look at later but not important.
+    // const messageSubClass = (props.newlocal) ? 'pending' : ''; 
+    const messageSubClass = '';
 
-  var replyData;
+    var replyData;
 
-  if(replyToID && replyToID != '' && groupChannelRef) {
-    let localFetchReplyToMessages = messages.filter((el) => (el.id == replyToID));
-    replyData = localFetchReplyToMessages[0].data;
-    // console.log("for reply " + replyToID + "<-" + id + ",got data:" + JSON.stringify(replyData));
-  }
+    if(replyToID && replyToID != '' && groupChannelRef) {
+      let localFetchReplyToMessages = messages.filter((el) => (el.id == replyToID));
+      replyData = localFetchReplyToMessages[0].data;
+      // console.log("for reply " + replyToID + "<-" + id + ",got data:" + JSON.stringify(replyData));
+    }
 
-  // Refs for scrolling
-  const messageRefs = useRef({});
+    // Refs for scrolling
+    const messageRefs = useRef({});
 
-  // Scroll handler, need to fix
-  const scrollToMessage = (messageId) => {
-      if (messageRefs.current[messageId]) {
-          messageRefs.current[messageId].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Scroll handler, need to fix
+    const scrollToMessage = (messageId) => {
+        if (messageRefs.current[messageId]) {
+            messageRefs.current[messageId].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
+    var pollID;
+    //Poll
+    if('specialData' in props.message && props.message.specialData != null){
+      if('pollID' in props.message.specialData) {
+        pollID = props.message.specialData.pollID;
       }
-  };
+    };
 
-  return (<>
-    <div className={`message-container ${messageClass} ${messageSubClass}`} id = {id}>
-      {(replyToID && replyData) ? (
-        <div 
-            // key={reply.id} 
-            className="reply-preview" 
-            onClick={() => scrollToMessage(replyToID)} >
-            <div className="reply-preview-content">
-              ↪{replyData.content.slice(0, 50)}
+    var groupOwner = currGroupOwner;
+
+    return (<>
+      <div className={`message-container ${messageClass} ${messageSubClass}`} id = {id}>
+        {(replyToID && replyData) ? (
+          <div 
+              // key={reply.id} 
+              className="reply-preview" 
+              onClick={() => scrollToMessage(replyToID)} >
+              <div className="reply-preview-content">
+                ↪{replyData.content.slice(0, 50)}
+              </div>
+              <div className="reply-preview-time">
+                  {(replyData.timestamp.toDate()).toLocaleTimeString()}
+              </div>
+          </div>
+        ) : <></>}
+
+        <div ref={el => messageRefs.current[id] = el} className="message-content">
+            
+            <div className="message-header">
+              <div className="message-avatar">
+                {/* <img src="avatar.png" alt="User Avatar" /> */}
+              </div>
+              <span className="message-username">{userDisplayName}</span>
+              <span className="message-username">{uid == groupOwner ? <>(Owner)</> : <></>}</span>
+              <span className="message-time">{formattedTime} 
+                {(lastChanged && (time.getTime() != lastChangedTime.getTime())) ? <> - Edited {formattedLastChanged}</> : <></>}</span>
             </div>
-            <div className="reply-preview-time">
-                {(replyData.timestamp.toDate()).toLocaleTimeString()}
+            
+            
+            <div className="message-text">
+              {content}
+              {(pollID != null) ? <PollMessageContent pollDocId = {pollID} currentUserUid ={currentUser.uid}></PollMessageContent> : <></>}
+            </div>
+
+            
+
+            {/* Hover buttons */}
+            <div className="message-buttons">
+              <button className="message-button" onClick={() => setReplyToID(id)}>
+                Reply
+              </button>
+              {(uid === currentUser.uid) ? 
+                <button className="message-button" onClick={() => setMessageEditID(id) }>
+                  Edit 
+                </button> : <></>
+              }
+              {(uid === currentUser.uid || currentUser.uid == groupOwner) ? 
+                <button className="message-button" onClick={() => handleMessageDelete(id) }>
+                  Delete
+                </button> : <></>
+              } 
+              {/* maybe I should not be using ternary operators this way? - Jamie 11/10 */}
+              {/* Add more buttons if needed */}
             </div>
         </div>
-      ) : <></>}
-
-      <div ref={el => messageRefs.current[id] = el} className="message-content">
-          
-          <div className="message-header">
-            <div className="message-avatar">
-              {/* <img src="avatar.png" alt="User Avatar" /> */}
-            </div>
-            <span className="message-username">{userDisplayName}</span>
-            <span className="message-time">{formattedTime} 
-              {(lastChanged && (time.getTime() != lastChangedTime.getTime())) ? <> - Edited {formattedLastChanged}</> : <></>}</span>
-          </div>
-          
-          
-          <div className="message-text">
-            {content}
-          </div>
-
-          {/* Hover buttons */}
-          <div className="message-buttons">
-            <button className="message-button" onClick={() => setReplyToID(id)}>
-              Reply
-            </button>
-            {(uid === currentUser.uid) ? 
-              <button className="message-button" onClick={() => setMessageEditID(id) }>
-              Edit
-            </button> : <></>} 
-            {/* maybe I should not be using ternary operators this way? - Jamie 11/10 */}
-            {/* Add more buttons if needed */}
-          </div>
       </div>
-    </div>
-  </>)
-}
+    </>)
+  }
+
+  
+  const GroupActivitiesSelector = () => {
+    // const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleGroupActivities = () => {
+      setGroupActivitiesMenuOpen(!groupActivitiesMenuOpen);
+    };
+
+    return (
+      <div className="group-activities-container">
+        {/* Group Activities Button */}
+        <button className="group-activities-btn" onClick={toggleGroupActivities}>
+          📚 {/* Replace with an icon if desired */}
+        </button>
+
+        {/* Pop-out menu */}
+        {groupActivitiesMenuOpen && (
+          <div className="group-activities-menu">
+            <ul>
+              <li onClick={() => {console.log("To-Do List selected")}}>To-Do List</li>
+              <li onClick={() => {
+                console.log("Poll selected");
+                setActiveSideBar('poll');
+                setIsRightSidebarCollapsed(false);
+                }}>Poll</li>
+              <li onClick={() => {console.log("Schedule an Event selected")}}>Schedule an Event</li>
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const goToDashboard = () => {
     navigate('/dashboard/@me'); // Navigate to the future activity dashboard page
@@ -399,6 +486,25 @@ function ChatMessage(props) {
 
   const clearError = () => {
     setError(null);
+  }
+
+  async function handleNewPoll(newPoll) {
+    console.log("Dashboard handleNewPoll: New poll " + newPoll.PollID + " detected:" + JSON.stringify(newPoll));
+    setNewPollData(newPoll);
+    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.PollID);
+    console.log("Dashboard handleNewPoll: post message send attempt - " + JSON.stringify(msgDocRef) + " ; " + JSON.stringify(msgSendError));
+  }
+
+  async function handleMessageDelete(msgID) {
+    const channelSubCollection = collection(db, groupChannelRef.path + "/Messages");
+    const docRef = doc(db,channelSubCollection.path + '/' + msgID);
+    try {
+      await deleteDoc(docRef);
+    } catch(err) {
+      console.log("handleMessageDelete: could not delete document " + msgID 
+        + " due to error: " + JSON.stringify(err));
+      console.log("handleMessageDelete: docref- " + JSON.stringify(docRef));
+    }
   }
 
   return (
@@ -413,6 +519,7 @@ function ChatMessage(props) {
       }
  
       {/* Friends Sidebar */}
+      {/* Some of the formatting and indentation here scares me. */}
       <div className={`sidebar friends ${isSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
         <button className="dashboard-button" onClick={goToDashboard}>
           <FiHome className="button-icon" /> 
@@ -435,13 +542,13 @@ function ChatMessage(props) {
         </div>
 
 
-        <div className="friend-list">
+        {/* <div className="friend-list">
           <div className="friend-circle"></div>
           <div className="friend-circle"></div>
           <div className="friend-circle"></div>
           <div className="friend-circle"></div>
           <div className="friend-circle add-new">+</div>
-        </div>
+        </div> */}
 
         {/* Profile Box */}
         <div className="profile-box" onClick={() => setShowDropdown(!showDropdown)}>
@@ -467,7 +574,7 @@ function ChatMessage(props) {
         </div>
       </div>
 
-
+      
       {/* Main Chat Area */}
       <div className="main-content">
         <div className="header">
@@ -494,40 +601,47 @@ function ChatMessage(props) {
             <ChatMessage key={msg.id} id={msg.id} message={msg.data} newlocal={msg.newlocal} 
           />) : (<p>Messages will be here...</p>))}
 
-          <div className="chat-input-container">
-          {/* File Upload Button */}
-            <button className="file-upload-btn" onClick={handleFileUpload}>
-            📎  
-            </button>
-            {/* Message Input Field */}
-            <input
-              type="text"
-              className="message-input"
-              placeholder="Type your message..."
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null}
-            />
-            {/* Send Button */}
-            <button className="send-btn" onClick={handleSendMessage}>
-              {messageEditID ? <>Edit</> : <>Send</>} {/* Replace with an icon if desired */}
+        </div>
+        
+        <div className="chat-input-container">
+        {/* File Upload Button */}
+          <button className="file-upload-btn" onClick={handleFileUpload}>
+          📎  
+          </button>
+          {/* Message Input Field */}
+          <input
+            type="text"
+            className="message-input"
+            placeholder="Type your message..."
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null}
+          />
+          {/* Send Button */}
+          <button className="send-btn" onClick={handleSendMessage}>
+            {messageEditID ? <>Edit</> : <>Send</>} {/* Replace with an icon if desired */}
 
-            
-            </button>
-            {messageEditID ? <button className="send-btn" onClick={() => {
-              setMessageEditID(false);
-              setMessageText('');
-              }}>
-              Cancel
-            </button> : <></> }
+          
+          </button>
+          {messageEditID ? <button className="send-btn" onClick={() => {
+            setMessageEditID(false);
+            setMessageText('');
+            }}>
+            Cancel
+          </button> : <></> }
 
-            {/* Group Activities Button */}
-            <GroupActivities /> 
-
-          </div>
+          {/* Group Activities Button */}
+          <GroupActivitiesSelector /> 
         </div>
       </div>
 
+      {/* Right Sidebar */}
+      <div className={`sidebar activities ${isRightSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
+        <button onClick={toggleRightSidebar} className="toggle-button">
+            {isRightSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
+        </button>
+        {(!isRightSidebarCollapsed && activeSideBar == 'poll') ? <PollCreator newPoll={handleNewPoll}> new poll </PollCreator>: <></>}
+      </div>
 
       {/* Notifications Dropdown */}
       {/* {showNotifications && (
@@ -540,11 +654,12 @@ function ChatMessage(props) {
 
 
       {/* Right Sidebar */}
-      <div className="sidebar notifications">
+      {/* <div className="sidebar notifications">
         <div className="notification-box"></div>
         <div className="notification-box"></div>
         <div className="notification-box"></div>
-      </div>
+      </div> */}
+
     </div>
   );
 };

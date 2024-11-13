@@ -39,7 +39,7 @@ const Register = () => {
         phone_number: phoneNumber,
         password: hashedPassword, // Store the hashed password securely
         profileCompleted: false,
-        creation_date: serverTimestamp
+        creation_date: serverTimestamp()
       });
       
       setMessage('Registration successful!');
