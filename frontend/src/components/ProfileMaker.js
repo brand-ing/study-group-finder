@@ -94,7 +94,7 @@ const ProfileName = ({ name, setName, nextStep }) => {
     try {
       // Save the display name as the username in the database
       const userRef = doc(db, 'Users', userId); 
-      await updateDoc(userRef, { username: name });
+      await updateDoc(userRef, { displayName: name });
       console.log('Username updated successfully');
 
       // Proceed to the next step in the profile maker

@@ -25,11 +25,11 @@ const ProfileSettings = () => {
   }, []);
 
   const loadProfile = async (uid) => {
-    const userDoc = doc(db, 'users', uid);
+    const userDoc = doc(db, 'Users', uid);
     const docSnap = await getDoc(userDoc);
     if (docSnap.exists()) {
       const userData = docSnap.data();
-      setDisplayName(userData.displayName || '');
+      setDisplayName(userData.displayName || ''); //need to change name in DB later.
       setProfilePicture(userData.profilePicture || 'default-profile.png');
     } else {
       console.log("No such document!");
@@ -39,21 +39,29 @@ const ProfileSettings = () => {
   const handleSaveChanges = async () => {
     const user = auth.currentUser;
     if (userId) {
-      const userDoc = doc(db, 'users', userId);
-      await updateDoc(userDoc, {
-        displayName,
-        profilePicture,
-      });
+      const userDoc = doc(db, 'Users', userId);
+      try {
+        // Update Firestore database with new display name and profile picture
+        await updateDoc(userDoc, {
+          displayName, //need to change name in DB later.
+          profilePicture,
+        });
 
-      await updateProfile(user, { displayName });
+        // Update Firebase Authentication display name
+        await updateProfile(user, { displayName });
 
-      if (password) {
-        await updatePassword(user, password);
+        // Update password if a new one was provided
+        if (password) {
+          await updatePassword(user, password);
+        }
+
+        console.log("Changes saved!");
+        alert("Profile updated successfully!");
+        setIsEditingDisplayName(false);
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Failed to update profile.");
       }
-
-      console.log("Changes saved!");
-      alert("Profile updated successfully!");
-      setIsEditingDisplayName(false);
     }
   };
 
