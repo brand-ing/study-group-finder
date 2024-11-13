@@ -175,6 +175,14 @@ h2,body {
   justify-content: center;
 }
 
+/* Hover effect for friend circles */
+.friend-circle:hover {
+  /* background-color: #303830; Change to a different color on hover */
+  outline-style: solid;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+  transform: scale(1.1); /* Slightly increase size */
+}
+
 .friend-circle.add-new {
   background-color: #4CAF50;
   color: white;
@@ -435,6 +443,12 @@ h2,body {
   border-radius: 50%;
   margin-right: 10px;
   object-fit: cover;
+}
+
+.profile-picture.friend {
+  width: 100%;
+  height: 100%;
+  margin: auto;
 }
 
 /* Profile Text Styling */

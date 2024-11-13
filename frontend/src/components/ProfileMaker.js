@@ -379,7 +379,7 @@ const ProfileMaker = () => {
     <WelcomeMessage nextStep={nextStep} />,
     <ProfileName name={name} setName={setName} nextStep={nextStep} />,
     <GenderSelector nextStep={nextStep} prevStep={prevStep}  />,
-    <ProfilePictureSetup nextStep={nextStep} prevStep={prevStep}  name={name} setProfilePicture={setProfilePicture} setHighlightColor={setHighlightColor} />,
+    <ProfilePictureSetup nextStep={nextStep} prevStep={prevStep}  name={name} setProfilePicture={setProfilePicture} setHighlightColor={setHighlightColor}/>,
     <BioSetup bio={bio} setBio={setBio} nextStep={nextStep} prevStep={prevStep}  />,
     <InterestSelector
       nextStep={nextStep}
