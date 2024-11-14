@@ -3,6 +3,8 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from './firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
+import { useNavigate } from 'react-router-dom';
+
 
 import NavigateButton from './NavigateButton';
 import PhoneNumberInput from './PhoneNumberInput';
@@ -19,6 +21,7 @@ const Register = () => {
   const [message, setMessage] = useState('');
   const [error, setErrors] = useState({});
 
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     try {
@@ -41,12 +44,9 @@ const Register = () => {
         profileCompleted: false,
       });
       
-      setMessage('Registration successful!');
-      setFirstName('');
-      setLastName('');
-      setEmail('');
-      setPhoneNumber('');
-      setPassword('');
+      // Output: should redirect to the login page on success. 
+      navigate('/login');
+
     } catch (error) {
       console.error('Error registering user:', error);
       setMessage('An error occurred. Please try again later.');
@@ -65,6 +65,7 @@ const Register = () => {
 const [isCheckerVisible, setIsCheckerVisible] = useState(false);
 
 const validatePassword = (password) => {
+  if(!password)
   setPasswordValid({
     minLength: password.length >= 8,
     hasUpperCase: /[A-Z]/.test(password),
@@ -85,21 +86,29 @@ const handlePhoneNumberChange = (formattedPhoneNumber) => {
   setPhoneNumber(formattedPhoneNumber);
 };
 
-  const handleSubmit = async(e) => {
-    e.preventDefault();
-    // reset errors
-    setErrors({});
-    setMessage('');
+const handleSubmit = (e) => {
+  e.preventDefault();
+  if (handleRegisterValidation()) {
+    handleSubmit({ firstName, lastName, email, phoneNumber, password });
+    setMessage("Registration successful!");
+  } else {
+    setMessage("Please fill out all required fields.");
+  }
+};
+// Guarantees all user information must be filled out.
+const handleRegisterValidation = () => {
+  const newError = {};
+  
+  if (!firstName) newError.firstName = "First Name is required";
+  if (!lastName) newError.lastName = "Last Name is required";
+  if (!email) newError.email = "Email is required";
+  if (!phoneNumber) newError.phoneNumber = "Phone Number is required";
+  if (!password) newError.password = "Password is required";
 
-    // Simple validation
-    const newErrors = {};
-    if (!email) newErrors.email = "Email is required";
-    if (!password) newErrors.password = "Password is required";
-    setErrors(newErrors);
+  setErrors(newError);
 
-    if (Object.keys(newErrors).length > 0) return;
-
-    handleRegister();
+  // Return true if no errors, false otherwise
+  return Object.keys(newError).length === 0;
 };
 
 return (
@@ -166,6 +175,7 @@ return (
                       placeholder="Enter your password"
                       className="password-input"
                   />
+                  {error.password && <p className="error">{error.password}</p>}
                   {isCheckerVisible && (
                       <div className="password-checker">
                           <p>{passwordValid.minLength ? '✔️' : '❌'} Minimum 8 characters</p>
