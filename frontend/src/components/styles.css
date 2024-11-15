@@ -1217,6 +1217,11 @@ h2 {
 .next-btn:hover {
   background-color: #45a049;
 }
+.error-text {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
 
 
 .profile-maker-container {

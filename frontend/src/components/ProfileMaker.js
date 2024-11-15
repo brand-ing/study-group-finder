@@ -150,29 +150,161 @@ const defaultAvatars = [
 <ProfilePictureSetup />
 //
   
-const BioSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
-  const handleBioChange = (event) => {
-    const input = event.target.value;
-    if (input.length <= 500) {
-      setBio(input);
+const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
+  const [profile, setProfile] = useState({
+    major: '',
+    year: '',
+    gpa: '',
+    department: '',
+    learningStyle: ''
+  });
+  const [majors, setMajors] = useState([]);
+  const [errors, setErrors] = useState({
+    major: false,
+    year: false,
+  });
+  
+
+  useEffect(() => {
+    const fetchMajors = async () => {
+      try {
+        const majorsCollection = collection(db, "Majors");
+        const snapshot = await getDocs(majorsCollection);
+        const majorsList = snapshot.docs.map((doc) => doc.data().name);
+        // console.log("Fetched Majors:", majorsList);
+        setMajors(majorsList);
+      } catch (error) {
+        console.error("Error fetching majors:", error);
+      }
+    };
+
+    fetchMajors();
+  }, []);
+
+  // Handle changes for profile fields
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfile({ ...profile, [name]: value });
+  };
+
+  const validateFields = () => {
+    const newErrors = {
+      major: profile.major === "",
+      year: profile.year === "",
+    };
+    setErrors(newErrors);
+    // Return true if no errors
+    return !Object.values(newErrors).includes(true);
+  };
+  
+
+  const handleNextStep = async() => {
+    // const userId = ; fetch userID
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.error("User not authenticated");
+      return;
+    }
+
+    const userId = user.uid;
+
+    try {
+      await saveProfileToDatabase(userId, profile);
+      console.log("Profile saved successfully!");
+      nextStep(); // Proceed to the next step
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    }
+  };
+  
+  const saveProfileToDatabase = async (userId, profile) => {
+    try {
+      const profileRef = doc(db, 'Profiles', userId); 
+      await setDoc(profileRef, { userId, ...profile });
+      console.log('Profile saved successfully!');
+    } catch (error) {
+      console.error('Error saving profile:', error);
     }
   };
 
   return (
-    <div className="profile-maker-container">
+    <form className="profile-maker-container">
       <h2>Tell us a little about yourself!</h2>
       <textarea
         value={bio}
-        onChange={handleBioChange}
+        onChange={handleProfileChange}
         placeholder="Enter a short bio (up to 500 characters)"
         maxLength={500}
       />
       <p>{bio.length}/500 characters</p>
+
+{/* Major */}
+    <label htmlFor="major">Major</label>
+    <select
+        id="major"
+        name="major"
+        value={profile.major}
+        onChange={handleProfileChange} // Uses profile change handler
+        required
+      >
+        <option value="">Select your major</option>
+        {majors.map((major, index) => (
+          <option key={index} value={major}>
+            {major}
+          </option>
+        ))}
+      </select>
+      {errors.major && <p className="error-text">Major is required.</p>}
+{/* Department */}
+      <label htmlFor="department">Department</label>
+      <input
+        type="text"  // Replace with a dropdown if pulling options from the database
+        id="department"
+        name="department"
+        value={profile.department}
+        onChange={handleProfileChange}
+        placeholder="Enter your department"
+      />
+{/* Year */}
+      <label htmlFor="year">Year</label>
+      <select id="year" name="year" value={profile.year} onChange={handleProfileChange} required>
+        <option value="">Select year</option>
+        <option value="freshman">Freshman</option>
+        <option value="sophomore">Sophomore</option>
+        <option value="junior">Junior</option>
+        <option value="senior">Senior</option>
+        <option value="masters">Masters</option>
+        <option value="phD">phD</option>
+      </select>
+      {errors.year && <p className="error-text">Year is required.</p>}
+      {/* GPA */}
+      <label htmlFor="gpa">GPA</label>
+      <h3>(optional)</h3>
+      <input
+        type="text"
+        id="gpa"
+        name="gpa"
+        value={profile.gpa}
+        onChange={handleProfileChange}
+        placeholder="Enter your GPA"
+      />
+      {/* Learning Style */}
+      <label htmlFor="learningStyle">Learning Style</label>
+      <input
+        type="text"  // Placeholder for future quiz-based component
+        id="learningStyle"
+        name="learningStyle"
+        value={profile.learningStyle}
+        onChange={handleProfileChange}
+        placeholder="Describe your learning style"
+      />
+
       <div className="button-group">
-        <button className="next-btn" onClick={nextStep}>Next</button>
+        <button className="next-btn" onClick={handleNextStep}>Next</button>
         <button className="back-btn" onClick={prevStep} disabled={currentStep === 0}>Back</button>
       </div>
-    </div>
+    </form>
   );
 };
 //
@@ -420,7 +552,7 @@ const ProfileMaker = () => {
     <ProfileName name={name} setName={setName} nextStep={nextStep} />,
     <GenderSelector nextStep={nextStep} prevStep={prevStep}  />,
     <ProfilePictureSetup nextStep={nextStep} prevStep={prevStep}  name={name} setProfilePicture={setProfilePicture} setHighlightColor={setHighlightColor} />,
-    <BioSetup bio={bio} setBio={setBio} nextStep={nextStep} prevStep={prevStep}  />,
+    <ProfileSetup bio={bio} setBio={setBio} nextStep={nextStep} prevStep={prevStep}  />,
     <InterestSelector
       nextStep={nextStep}
       prevStep={prevStep}
