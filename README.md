@@ -1,4 +1,4 @@
-# Looking for Group
+# Looking for A Group
 
 LFG is a web application designed to help students connect, collaborate, and support each other academically. The platform provides an easy way to find or create study groups, participate in discussions, share resources, and stay motivated with peers.
 

@@ -4,8 +4,8 @@ import { signOut, getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { serverTimestamp, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, deleteDoc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 // import 'firebase/firestore'
-import { auth, db } from './firebaseConfig';
-import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
+import { auth, db, storage } from './firebaseConfig';
+import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight, FiCoffee , FiHash, FiUsers , FiCalendar, FiFile } from 'react-icons/fi'; // Importing icons
 
 import './styles.css';
 import { ToastContainer, toast } from 'react-toastify';
@@ -15,6 +15,11 @@ import Message from './Message';
 import PollCreator from './PollCreator';
 import PollMessageContent from './PollMessageContent.js';
 import FriendList from './FriendList.js';
+
+// file upload
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
+
 
 const notify = () => toast("Here is your toast.");
 
@@ -61,7 +66,11 @@ async function addMessageToFirestore(msgCollection,uid,userDisplayName, content,
   return [msgDocRef, error];
 }
 
+  
 
+  
+  
+  
 const Dashboard = () => {
   const [error, setError] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -76,6 +85,7 @@ const Dashboard = () => {
   const [selectedGroup, setSelectedGroup] = useState();
   const [selectedChannel, setSelectedChannel] = useState();
   const [messages, setMessages] = useState();
+  const [activeSection, setActiveSection] = useState('discussion');
   // put here to remove error message lol
   // i made a button... - Jamie 11/10
   const [messageText, setMessageText] = useState("");
@@ -161,8 +171,51 @@ const Dashboard = () => {
 
   // Putting event handlers for chat here for now...
   
-  const handleFileUpload = () => {
-    // Logic for file upload
+  const handleFileUpload = async (groupId, userId) => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "application/pdf,image/*";
+  
+    fileInput.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+  
+      try {
+        const storageRef = ref(storage, `uploads/${groupId}/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+  
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log("Upload is " + progress + "% done");
+          },
+          (error) => {
+            console.error("Upload failed:", error);
+          },
+          async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log("File available at", downloadURL);
+  
+            // Reference to the group's uploads subcollection
+            const uploadsCollectionRef = collection(db, "Groups", groupId, "uploads");
+  
+            await addDoc(uploadsCollectionRef, {
+              url: downloadURL,
+              name: file.name,
+              uploadedBy: userId,
+              uploadedAt: serverTimestamp(),
+            });
+  
+            alert("File uploaded successfully!");
+          }
+        );
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
+    };
+  
+    fileInput.click();
   };
   
   async function handleSendMessage() {
@@ -681,6 +734,14 @@ async function handleFriendClick(id) {
         <button className="dashboard-button" onClick={goToDashboard}>
           <FiHome className="button-icon" /> 
         </button>
+        <select className="group-select" onChange={handleGroupChange} value={selectedGroup}>
+            {/* {userData.groups ? userData.groups.map((item, index) => (
+              <option>{item}</option>
+            )) : <option>Failed to load</option>
+            } */}
+           {groupArray.map((el, index) => 
+              React.createElement('option', { key: index }, el))}
+          </select>
         <div className="sidebar-header">
           {!isSidebarCollapsed ? (
             <input 
@@ -760,19 +821,35 @@ async function handleFriendClick(id) {
             <FiBell size={20} />
           </button>
           <ToastContainer />
+          <ul className="section-nav">
+            <li onClick={() => setActiveSection('discussion')} className={activeSection === 'discussion' ? 'active' : ''}>
+              <FiCoffee  title="Discussion Board" />
+            </li>
+            <li onClick={() => setActiveSection('channels')} className={activeSection === 'channels' ? 'active' : ''}>
+              <FiHash title="Channels" />
+            </li>
+            <li onClick={() => setActiveSection('classlist')} className={activeSection === 'classlist' ? 'active' : ''}>
+              <FiUsers  title="Classlist" />
+            </li>
+            <li onClick={() => setActiveSection('calendar')} className={activeSection === 'calendar' ? 'active' : ''}>
+              <FiCalendar title="Calendar" />
+            </li>
+            <li onClick={() => setActiveSection('file')} className={activeSection === 'file' ? 'active' : ''}>
+              <FiFile title="Files" />
+            </li>
+          </ul>
         </div>
         <div className="message-area">
           {((messages && messages.length > 0) ? messages.map(msg => 
             <ChatMessage key={msg.id} id={msg.id} message={msg.data} newlocal={msg.newlocal} 
           />) : (<p>Messages will be here...</p>))}
-
         </div>
         
         <div className="chat-input-container">
         {/* File Upload Button */}
-          <button className="file-upload-btn" onClick={handleFileUpload}>
-          📎  
-          </button>
+            <button className="file-upload-btn" onClick={handleFileUpload}>
+            +  
+            </button>
           {/* Message Input Field */}
           <input
             type="text"
@@ -785,8 +862,6 @@ async function handleFriendClick(id) {
           {/* Send Button */}
           <button className="send-btn" onClick={handleSendMessage}>
             {messageEditID ? <>Edit</> : <>Send</>} {/* Replace with an icon if desired */}
-
-          
           </button>
           {messageEditID ? <button className="send-btn" onClick={() => {
             setMessageEditID(false);
