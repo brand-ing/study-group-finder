@@ -45,7 +45,7 @@ const ProfilePictureSetup = ({ nextStep, currentStep, prevStep, setProfilePictur
   };
 
   const saveProfilePicture = async (selectedImage) => {
-    const userDocRef = doc(db, 'users', userId);
+    const userDocRef = doc(db, 'Users', userId);
     await updateDoc(userDocRef, { profilePicture: selectedImage });
     setProfilePicture(selectedImage);
   };
