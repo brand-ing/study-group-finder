@@ -42,6 +42,7 @@ const GroupMaker = () => {
     try {
       // Get the current user's ID (assuming they are logged in and the user object is available)
       const userId = auth.currentUser ? auth.currentUser.uid : null;
+      const userDocRef = doc(db, 'Users', userId);
 
       if (!userId) {
         console.error("User is not authenticated.");
@@ -58,7 +59,7 @@ const GroupMaker = () => {
         createdBy: userId,
         creationDate: serverTimestamp(),
         groupCategory: groupData.subject, // You can use the subject as the category
-        members: [userId], // Initial member is the group creator
+        members: [userDocRef], // Initial member is the group creator
         groupAvatar: "", // Optional: you can add a default avatar or let the user upload one
         groupEvents: [] // Empty initially; events can be added later
       });
