@@ -1,0 +1,70 @@
+
+  .notification-settings h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    text-align: center;
+  }
+  
+  .notification-settings ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .notification-settings li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .notification-settings label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-size: 1rem;
+    color: #34495e;
+  }
+  
+  .notification-settings input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .notification-settings .slider {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 1rem;
+  }
+  
+  .notification-settings input[type="checkbox"]:checked + .slider {
+    background-color: #3498db;
+  }
+  
+  .notification-settings .slider::before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: 0.3s;
+    transform: translateX(2px);
+    top: 50%;
+    left: 0;
+    transform: translate(2px, -50%);
+  }
+  
+  .notification-settings input[type="checkbox"]:checked + .slider::before {
+    transform: translate(20px, -50%);
+  }
+  

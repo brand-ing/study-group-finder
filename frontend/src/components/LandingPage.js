@@ -15,7 +15,7 @@ const LandingPage = () => {
                 <Logo className="logo" /> 
                 <ul>
                     <li>Features</li>
-                    <li>Support</li>
+                    <li onClick={() => navigate('/support')}>Support</li>
                 </ul>
                 <div className="cta-buttons">
                     <button onClick={() => navigate('/login')} className="login-btn">Log In</button>

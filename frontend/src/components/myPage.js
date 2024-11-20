@@ -4,6 +4,7 @@ import { doc, getDoc, updateDoc, getDocs, collection } from "firebase/firestore"
 import { auth, db } from "./firebaseConfig"; 
 import { GroupFinder } from './GroupFinder';
 import CollapsibleSection from "./CollapsibleSection";
+import NotificationSettings from './NotificationSettings';
 
 const MyPage = () => {
     const navigate = useNavigate();
@@ -215,9 +216,10 @@ const MyPage = () => {
                 </div>
 
                 {/* Notifications Section */}
-                <div className="section notifications">
-                <p className="section-title">Notifications</p>
-                </div>
+                <CollapsibleSection title="Notification Settings">
+                <p className="section-title"></p>
+                <NotificationSettings />
+                </CollapsibleSection>
 
                 {/* Friends Section */}
                 <div className="section friends">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db } from './firebaseConfig';
+import { db, auth} from './firebaseConfig';
 import { doc , updateDoc } from 'firebase/firestore';
 import './styles.css';
 
@@ -13,7 +13,8 @@ const defaultAvatars = [
   ];
   
 
-const ProfilePictureSetup = ({ nextStep, currentStep, prevStep, setProfilePicture, setHighlightColor, name, setName, userId }) => {
+const ProfilePictureSetup = ({ nextStep, currentStep, prevStep, setProfilePicture, setHighlightColor, name, setName }) => {
+  const userId = auth.currentUser.uid;
   const [selectedAvatar, setSelectedAvatar] = useState(defaultAvatars[0]);
   const [image, setImage] = useState(null);
   const [highlightColor, setHighlightColorState] = useState('#FF6347'); 
@@ -45,15 +46,25 @@ const ProfilePictureSetup = ({ nextStep, currentStep, prevStep, setProfilePictur
   };
 
   const saveProfilePicture = async (selectedImage) => {
-    const userDocRef = doc(db, 'Users', userId);
-    await updateDoc(userDocRef, { profilePicture: selectedImage });
+    var userDocRef;
+    try{
+      userDocRef = doc(db, 'Users', userId);
+      await updateDoc(userDocRef, { profilePicture: selectedImage });
+    } catch(error) {
+      console.error("saveProfilePicture: could not save - " + error + " inputs: " + 
+        JSON.stringify(selectedImage) + "," + 
+        JSON.stringify(userId) + "," +
+        JSON.stringify(userDocRef)
+      );
+    }
     setProfilePicture(selectedImage);
   };
 
-  const handleSave = async () => {
+ const handleSave = async () => {
     if (image) {
-      const file = dataURLToBlob(image);
-      const imageUrl = await handleImageUpload(file);
+      // const file = dataURLToBlob(image);
+      // const imageUrl = await handleImageUpload(file);
+      const imageUrl = image; //use base64 for now
       saveProfilePicture(imageUrl);
     } else {
       saveProfilePicture(selectedAvatar);
@@ -63,7 +74,8 @@ const ProfilePictureSetup = ({ nextStep, currentStep, prevStep, setProfilePictur
 
   const dataURLToBlob = (dataUrl) => {
     const arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      bstr = atob(arr[1])
+    var n = bstr.length, u8arr = new Uint8Array(n);
     while (n--) u8arr[n] = bstr.charCodeAt(n);
     return new Blob([u8arr], { type: mime });
   };
