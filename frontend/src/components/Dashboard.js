@@ -777,16 +777,16 @@ async function handleFriendClick(id) {
         />
 
         {/* Profile Box */}
-        <div className="profile-box" onClick={() => setShowDropdown(!showDropdown)}>
+        <div className="profile-box" data-testid="profile-box" onClick={() => setShowDropdown(!showDropdown)}>
         <div className="profile-info">
     {isSidebarCollapsed ? (
-      <FiUser size={24} />
+      <FiUser size={24} data-testid="profile-icon" />
     ) : (
       <>
-        <img src={userData?.profilePicture} alt="Profile" className="profile-picture" />
+        <img src={userData?.profilePicture} alt="Profile" className="profile-picture" data-testid="profile-picture"/>
         <div className="profile-text">
-          <span className="first-name">{userData.first_name}</span>
-          <span className="username">{username}</span>
+          <span className="first-name" data-testid="first-name">{userData.first_name}</span>
+          <span className="username" data-testid="username">{username}</span>
         </div>
           </>
           )}
@@ -794,7 +794,7 @@ async function handleFriendClick(id) {
           {showDropdown && (
             <div className="dropdown">
               <button onClick={goToProfileSettings}>Profile Settings</button>
-              <button onClick={handleSignOut}>Sign Out</button>
+              <button data-testid="sign-out-button" onClick={handleSignOut}>Sign Out</button>
             </div>
           )}
         </div>

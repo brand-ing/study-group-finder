@@ -9,6 +9,7 @@ export const query = jest.fn();
 export const where = jest.fn();
 export const getDocs = jest.fn();
 export const addDoc = jest.fn();
+export const onSnapshot = jest.fn();
 
 // Example mock behavior for `getDoc`
 getDoc.mockImplementation((docRef) => {
