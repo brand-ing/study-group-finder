@@ -66,7 +66,7 @@ const Register = () => {
 const [isCheckerVisible, setIsCheckerVisible] = useState(false);
 
 const validatePassword = (password) => {
-  if(!password)
+  if(!password) {return;}
   setPasswordValid({
     minLength: password.length >= 8,
     hasUpperCase: /[A-Z]/.test(password),
@@ -90,7 +90,7 @@ const handlePhoneNumberChange = (formattedPhoneNumber) => {
 const handleSubmit = (e) => {
   e.preventDefault();
   if (handleRegisterValidation()) {
-    handleSubmit({ firstName, lastName, email, phoneNumber, password });
+    handleRegister();
     setMessage("Registration successful!");
   } else {
     setMessage("Please fill out all required fields.");
