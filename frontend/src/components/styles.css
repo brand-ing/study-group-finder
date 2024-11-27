@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Eczar:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Eczar:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&family=Roboto+Slab:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Eczar:wght@400..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&family=Roboto+Slab:wght@100..900&display=swap');
 *{
@@ -488,6 +488,8 @@ h2,body {
 .notification-btn:active {
   background-color: #ccc; /* Slightly darker when active */
 }
+
+
 /* Dashboard layout adjustments */
 .dashboard-buttons {
   display: flex;
@@ -648,94 +650,110 @@ nav ul li:hover {
   transform: scale(1.1); /* Subtle scale effect for hover */
 }
 
-/* Hero Section */
+/* Modern Hero Section Styling */
 .hero-section {
-  text-align: left;
-  padding: 1rem 3.5rem;
-  background-color: #000000; /* Darker shade for a more modern feel */
-  height: auto;
-  display: flex; /* Use flexbox for positioning */
-  flex-direction: column;
-  justify-content: center; /* Center the content vertically */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  gap: 2rem;
+  background: linear-gradient(to bottom, #000000, #111111);
+  min-height: 80vh;
 }
 
+.hero-image {
+  max-width: 50%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+
 #hero-what {
-  font-size: 3rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #fff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Adds depth to the text */
-  margin-bottom: 20px;
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  background: linear-gradient(to right, #fff, #61dafb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
 }
 
 .cta-statement {
   font-size: 1.5rem;
-  font-weight: 400;
-  color: #f1f1f1;
-  margin-bottom: 30px;
-  background-color: #000;
+  line-height: 1.5;
+  color: #888;
+  margin-bottom: 2.5rem;
+  max-width: 600px;
 }
 
-/* Call-to-Action Buttons */
+/* Modern CTA Buttons */
 .cta-buttons {
   display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.login-btn, .register-btn {
-  font-size: 16px;
-  padding: 12px 30px;
-  border-radius: 50px;
-  text-transform: uppercase;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.3s, transform 0.3s ease;
-}
-
-.login-btn {
-  background-color: #61dafb;
-  color: #fff;
-}
-
-.register-btn {
-  background-color: #4CAF50; /* Green color for positive action */
-  color: white;
-}
-
-.login-btn:hover{
-  background-color: #44b7d7; /* Slightly darker shade */
-  transform: translateY(-3px); /* Adds hover lift effect */
-}
-
-.register-btn:hover {
-  background-color: #337735; 
-  transform: translateY(-3px); 
+  gap: 1rem;
 }
 
 .hero-btn {
-  font-size: 14px;                /* Smaller font size */
-  padding: 8px 20px;              /* Adjust padding to make the button smaller */
-  background-color: #fff;         /* White background */
-  color: #000;                    /* Black text */
-  border: 2px solid #000;         /* Black border */
-  border-radius: 25px;            /* Rounded corners */
-  font-weight: bold;              /* Bold text */
-  cursor: pointer;                /* Pointer cursor on hover */
-  transition: all 0.3s ease;      /* Smooth transition for hover effects */
-  text-transform: uppercase;      /* Uppercase text */
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-btn.primary {
+  background: linear-gradient(to right, #61dafb, #3490dc);
+  color: white;
+  border: none;
+}
+
+.hero-btn.secondary {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .hero-btn:hover {
-  background-color: #fff;         /* Black background on hover */
-  color: #000;                    /* White text on hover */
-  transform: scale(1.05);          /* Slightly increase the button size */
-  letter-spacing: 2px;            /* Add some spacing between letters */
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-.hero-btn:active {
-  transform: scale(0.98);         /* Slightly shrink when clicked */
+/* Optional: Add a subtle grid background */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #hero-what {
+    font-size: 3rem;
+  }
+  
+  .hero-section {
+    padding: 2rem 1.5rem;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+  }
 }
 
 footer{
@@ -2064,3 +2082,75 @@ button:disabled {
   color: #444;
   padding: 4px 0;
 }
+
+/* Event Component  */
+.event-scheduler {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto; /* Center horizontally */
+}
+
+.event-creator {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  gap: 10px;
+}
+
+.event-creator input,
+.event-creator select,
+.event-creator textarea {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.event-creator textarea {
+  resize: none;
+}
+
+.event-creator button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.event-creator button:hover {
+  opacity: 0.9;
+}
+
+/* Calendar */
+.full-calendar {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.full-calendar h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.rbc-toolbar-label {
+  color: #333; /* Dark Gray */
+  font-size: 1.5rem; /* Larger font size for better visibility */
+  font-weight: bold; /* Makes it stand out */
+  text-align: center;
+}
+
+/* Ensure calendar dates are darker and readable */
+.rbc-day-bg,
+.rbc-date-cell {
+  color: #333; /* Dark Gray for better contrast on white */
+  font-size: 1rem; /* Keep the font size readable */
+  font-weight: 500; /* Slightly bold for visibility */
+}
+.rbc-today {
+  background-color: #ffecb3; /* Light yellow for the current day */
+} 

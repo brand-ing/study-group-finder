@@ -23,9 +23,16 @@ const LandingPage = () => {
                 </div>
             </nav>
             <div className="hero-section">
-                <p id="hero-what">CONNECT WITH LEARNERS, STAY ON TRACK, AND MAKE STUDYING MORE FUN. </p>
-                <button onClick={() => navigate('/register')} className="register-btn hero-btn">Sign Up Now </button>
-                <h2 className="cta-statement">Let’s Forge Greatness!</h2> 
+                <div className="hero-content">
+                    <p id="hero-what">CONNECT WITH LEARNERS, STAY ON TRACK, AND MAKE STUDYING MORE FUN.</p>
+                    <button onClick={() => navigate('/register')} className="register-btn hero-btn">Sign Up Now</button>
+                    <h2 className="cta-statement">Let's Forge Greatness!</h2>
+                </div>
+                <img 
+                    src="/images/study-group.png" 
+                    alt="Students studying together" 
+                    className="hero-image"
+                />
             </div>
             <div className='features-section'>
                 <Features />
