@@ -9,11 +9,11 @@ const FriendList = ({ friendList, setCurrentFriend, handleAddFriendRequest, side
     const [pictures, setPictures] = useState([]);
 
     const handleAddFriendClick = () => {
-        if(!sidebarOff) {setShowInput(true)};
+        if(sidebarOff) {setShowInput(true)};
         if(sidebarOff) {
             setSideBar(true);
-            setShowInput(true);
         }
+        setShowInput((prev) => !prev);
     };
 
     const handleAddFriend = () => {
@@ -23,7 +23,6 @@ const FriendList = ({ friendList, setCurrentFriend, handleAddFriendRequest, side
             setShowInput(false);
         }
     };
-
 
 
     const retrievePictures = async () => {
