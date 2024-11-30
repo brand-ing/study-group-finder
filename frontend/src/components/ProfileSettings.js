@@ -87,7 +87,6 @@ const ProfileSettings = () => {
 
   return (
     <div className="profile-settings">
-      <h2>Profile Settings</h2>
       
       <div className="profile-section">
         <h3>Profile Picture</h3>
@@ -133,17 +132,10 @@ const ProfileSettings = () => {
         />
       </div>
 
-      <div className="profile-section">
-        <h3>Notification Settings</h3>
-        <button className="notification-settings-button">
-          Go to Notification Settings
-        </button>
-      </div>
-
       <div className="button-group">
         <button className="save-button" onClick={handleSaveChanges}>Save Changes</button>
         <button className="discard-button" onClick={handleDiscardChanges}>Discard Changes</button>
-        <button className="back-button" onClick={goBackToDashboard}>Go Back</button>
+        {/* <button className="back-button" onClick={goBackToDashboard}>Go Back</button> */}
       </div>
     </div>
   );

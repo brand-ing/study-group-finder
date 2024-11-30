@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { serverTimestamp, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, deleteDoc, addDoc, getDoc, getDocs, setDoc, collection, query, where, orderBy, limit, QuerySnapshot, Timestamp} from 'firebase/firestore';
 // import 'firebase/firestore'
 import { auth, db, storage } from './firebaseConfig';
-import { FiSearch, FiUser, FiBell, FiHome, FiChevronLeft, FiChevronRight, FiCoffee , FiHash, FiUsers , FiCalendar, FiFile } from 'react-icons/fi'; // Importing icons
+import { FiSearch, FiUser, FiHome, FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Importing icons
 
 import './styles.css';
 import { ToastContainer, toast } from 'react-toastify';
@@ -15,9 +15,11 @@ import Message from './Message';
 import PollCreator from './PollCreator';
 import PollMessageContent from './PollMessageContent.js';
 import FriendList from './FriendList.js';
-
+import NotificationToggle from './NotificationToggle';
 // file upload
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import TaskManager from "./TaskManager";
+import ScheduleManager from "./ScheduleManager";
 
 
 
@@ -102,6 +104,18 @@ const Dashboard = () => {
   const [currentFriend, setCurrentFriend] = useState(null);
   // const friendList = userData.friendList || [];
   const [friendList, setFriendList] = useState([]);
+  const [notifications, setNotifications] = useState([
+    { type: 'FILES', content: 'File X has been uploaded' },
+    { type: 'EVENTS', content: 'Event Y is happening tomorrow' },
+    { type: 'TO-DOs', content: 'Task Z is due soon' },
+  ]);
+
+  const [notificationFilter, setNotificationFilter] = useState('ALL');
+  
+  const filteredNotifications = notifications.filter((notification) =>
+    notificationFilter === 'ALL' ? true : notification.type === notificationFilter
+  );
+  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -535,38 +549,6 @@ const Dashboard = () => {
     </>)
   }
 
-  
-  const GroupActivitiesSelector = () => {
-    // const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    const toggleGroupActivities = () => {
-      setGroupActivitiesMenuOpen(!groupActivitiesMenuOpen);
-    };
-
-    return (
-      <div className="group-activities-container">
-        {/* Group Activities Button */}
-        <button className="group-activities-btn" onClick={toggleGroupActivities}>
-          📚 {/* Replace with an icon if desired */}
-        </button>
-
-        {/* Pop-out menu */}
-        {groupActivitiesMenuOpen && (
-          <div className="group-activities-menu">
-            <ul>
-              <li onClick={() => {console.log("To-Do List selected")}}>To-Do List</li>
-              <li onClick={() => {
-                console.log("Poll selected");
-                setActiveSideBar('poll');
-                setIsRightSidebarCollapsed(false);
-                }}>Poll</li>
-              <li onClick={() => {console.log("Schedule an Event selected")}}>Schedule an Event</li>
-            </ul>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const goToDashboard = () => {
     navigate('/dashboard/@me'); // Navigate to the future activity dashboard page
@@ -594,6 +576,31 @@ const Dashboard = () => {
       console.log("handleMessageDelete: docref- " + JSON.stringify(docRef));
     }
   }
+  // Group events Schedule and Task
+  const [isScheduleManagerVisible, setIsScheduleManagerVisible] = useState(false);
+  const [isTaskManagerVisible, setIsTaskManagerVisible] = useState(false);
+  const [isPollCreatorVisible, setIsPollCreatorVisible] = useState(false);
+
+
+const toggleTaskManager = () => {
+  setIsTaskManagerVisible((prev) => !prev);
+  console.log("Task Manager toggled");
+};
+
+const toggleScheduleManager = () => {
+  setIsScheduleManagerVisible((prev) => !prev);
+  console.log("Schedule Manager toggled");
+};
+
+const togglePollCreator = () => {
+  setIsPollCreatorVisible((prev) => !prev);
+  console.log("Poll Creator toggled");
+};
+
+const handlePollCreated = (pollData) => {
+  console.log('Poll created:', pollData);
+  // Optionally, send a message or update UI based on the new poll
+};
 
   // Firestore listener for friend requests
   useEffect(() => {
@@ -793,7 +800,7 @@ async function handleFriendClick(id) {
           </div>
           {showDropdown && (
             <div className="dropdown">
-              <button onClick={goToProfileSettings}>Profile Settings</button>
+              {/* <button onClick={goToProfileSettings}>Profile Settings</button> */}
               <button data-testid="sign-out-button" onClick={handleSignOut}>Sign Out</button>
             </div>
           )}
@@ -804,40 +811,12 @@ async function handleFriendClick(id) {
       {/* Main Chat Area */}
       <div className="main-content">
         <div className="header">
-          <select className="group-select" onChange={handleGroupChange} value={selectedGroup}>
-            {/* {userData.groups ? userData.groups.map((item, index) => (
-              <option>{item}</option>
-            )) : <option>Failed to load</option>
-            } */}
-           {groupArray.map((el, index) => 
-              React.createElement('option', { key: index }, el))}
-            <option>Group Alpha</option>
-            <option>Group Beta</option>
-            <option>Group Gamma</option>
-          </select>
           <h3 className="group-name">{selectedChannel}</h3>
                     {/* Notifications Button */}
-          <button className="notification-btn notifications-toggle" onClick={toggleNotifications}>
-            <FiBell size={20} />
+          <NotificationToggle />
+          <button onClick={() => navigate('/support')} className="floating-help-button">
+            Help
           </button>
-          <ToastContainer />
-          <ul className="section-nav">
-            <li onClick={() => setActiveSection('discussion')} className={activeSection === 'discussion' ? 'active' : ''}>
-              <FiCoffee  title="Discussion Board" />
-            </li>
-            <li onClick={() => setActiveSection('channels')} className={activeSection === 'channels' ? 'active' : ''}>
-              <FiHash title="Channels" />
-            </li>
-            <li onClick={() => setActiveSection('classlist')} className={activeSection === 'classlist' ? 'active' : ''}>
-              <FiUsers  title="Classlist" />
-            </li>
-            <li onClick={() => setActiveSection('calendar')} className={activeSection === 'calendar' ? 'active' : ''}>
-              <FiCalendar title="Calendar" />
-            </li>
-            <li onClick={() => setActiveSection('file')} className={activeSection === 'file' ? 'active' : ''}>
-              <FiFile title="Files" />
-            </li>
-          </ul>
         </div>
         <div className="message-area">
           {((messages && messages.length > 0) ? messages.map(msg => 
@@ -871,17 +850,79 @@ async function handleFriendClick(id) {
           </button> : <></> }
 
           {/* Group Activities Button */}
-          <GroupActivitiesSelector /> 
+          {/* <GroupActivitiesSelector />  */}
         </div>
       </div>
 
-      {/* Right Sidebar */}
+      {/* Right Sidebar: for notifications and activity creation. */}
       <div className={`sidebar activities ${isRightSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
-        <button onClick={toggleRightSidebar} className="toggle-button">
-            {isRightSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
+  {/* Toggle Button */}
+  <button onClick={toggleRightSidebar} className="toggle-button">
+    {isRightSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
+  </button>
+
+  {/* Make Events Section */}
+  {!isRightSidebarCollapsed && (
+    <div className="make-events">
+      <h3>Activities</h3>
+      {/* Schedule Manager Button */}
+      <button className="schedule-button" onClick={toggleScheduleManager}>
+        Schedule an Event
+      </button>
+      <button className="poll-button" onClick={togglePollCreator}>
+                Create a Poll
+      </button>
+      <button className="task-button" onClick={toggleTaskManager}>
+        Task Manager
+      </button>
+      {/* Render if visible */}
+      {isTaskManagerVisible && <TaskManager onClose={toggleTaskManager} />}
+      {isScheduleManagerVisible && <ScheduleManager onClose={toggleScheduleManager} />}
+      {isPollCreatorVisible && <PollCreator onClose={togglePollCreator} onPollCreated={handlePollCreated}/>} 
+    </div>
+  )}
+
+  {/* Notifications Section */}
+  {!isRightSidebarCollapsed && (
+    <div className="notifications-section">
+      <h3>Notifications</h3>
+      <div className="filter-buttons">
+        <button
+          className={notificationFilter === 'ALL' ? 'active' : ''}
+          onClick={() => setNotificationFilter('ALL')}
+        >
+          ALL
         </button>
-        {(!isRightSidebarCollapsed && activeSideBar == 'poll') ? <PollCreator newPoll={handleNewPoll}> new poll </PollCreator>: <></>}
+        <button
+          className={notificationFilter === 'FILES' ? 'active' : ''}
+          onClick={() => setNotificationFilter('FILES')}
+        >
+          FILES
+        </button>
+        <button
+          className={notificationFilter === 'EVENTS' ? 'active' : ''}
+          onClick={() => setNotificationFilter('EVENTS')}
+        >
+          EVENTS
+        </button>
+        <button
+          className={notificationFilter === 'TO-DOs' ? 'active' : ''}
+          onClick={() => setNotificationFilter('TO-DOs')}
+        >
+          TO-DOs
+        </button>
       </div>
+      <ul className="notifications-list">
+        {filteredNotifications.map((notification, index) => (
+          <li key={index} className="notification-item">
+            {notification.content}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
+
 
       {/* Notifications Dropdown */}
       {/* {showNotifications && (

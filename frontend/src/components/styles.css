@@ -108,6 +108,7 @@ h2,body {
   height: 100vh;
 }
 
+
 /* Area 1: Friends Sidebar */
 .sidebar.friends {
   width: 60px;
@@ -464,6 +465,22 @@ h2,body {
   height: 100%;
 }
 
+.floating-help-button {
+  width: 40px;  /* Set fixed width */
+  height: 40px;  /* Set fixed height (same as width for perfect circle) */
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: flex;  /* Add flex display */
+  align-items: center;  /* Center content vertically */
+  justify-content: center;  /* Center content horizontally */
+  padding: 0;  
+}
+
+
 /* Area 3: Notifications Sidebar */
 .notification-btn {
   background-color: #f0f0f0; /* Light background for a subtle look */
@@ -528,6 +545,43 @@ h2,body {
   height: 100%;
   margin: auto;
 }
+
+.sidebar.activities {
+  width: 300px;
+  transition: width 0.3s;
+}
+
+.sidebar.activities.collapsed {
+  width: 50px;
+}
+
+.make-events,
+.notifications-section {
+  margin: 20px;
+}
+
+.notifications-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.filter-buttons button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.filter-buttons button.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
 
 /* Profile Text Styling */
 .profile-text {
@@ -871,7 +925,7 @@ footer{
 
 /* ProfileSettings.css */
 
-.profile-settings {
+/* .profile-settings {
   width: 80%;
   max-width: 600px;
   margin: 20px auto;
@@ -879,29 +933,29 @@ footer{
   border-radius: 8px;
   background-color: #f8f9fa;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+} */
 
-.profile-settings h2 {
+/* .profile-settings h2 {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
-}
+} */
 
-.profile-section {
+/* .profile-section {
   margin-bottom: 20px;
-}
+} */
 
-.profile-section h3 {
+/* .profile-section h3 {
   color: #555;
   font-size: 1.1rem;
   margin-bottom: 10px;
-}
+} */
 
-.profile-picture-container {
+/* .profile-picture-container {
   display: flex;
   align-items: center;
   gap: 10px;
-}
+} */
 
 .profile-picture {
   width: 80px;
@@ -1833,8 +1887,8 @@ button:disabled {
   background-color: #2196F3; /* Blue for Create */
 }
 
-.joined-button {
-  background-color: #FF9800; /* Orange for Joined Groups */
+.settings-button {
+  background-color: #FF9800; /* Orange for Profile Settings Groups */
 }
 
 .nav-card:hover {

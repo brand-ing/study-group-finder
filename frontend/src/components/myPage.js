@@ -6,6 +6,8 @@ import { GroupFinder } from './GroupFinder';
 import CollapsibleSection from "./CollapsibleSection";
 import NotificationSettings from './NotificationSettings';
 
+import ProfileSettings from './ProfileSettings';
+
 const MyPage = () => {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null); // State for profile data
@@ -128,10 +130,12 @@ const MyPage = () => {
                     <button className="nav-card create-button" onClick={goToCreateGroup}>
                         Create a Group
                     </button>
-                    {/* <button className="nav-card joined-button" onClick={goToJoinedGroups}>
-                        Joined Groups
-                    </button> */}
                 {/* About Me */}
+                <div className="section profile-settings">
+                  <CollapsibleSection title="Profile Settings">
+                    <ProfileSettings />
+                  </CollapsibleSection> 
+                </div>
                 <div className="section suggestions">
                 {/* <p className="section-title">About Me</p> */}
 <CollapsibleSection title="About Me">
