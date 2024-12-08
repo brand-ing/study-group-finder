@@ -138,7 +138,7 @@ const MyPage = () => {
                 </div>
                 <div className="section suggestions">
                 {/* <p className="section-title">About Me</p> */}
-<CollapsibleSection title="About Me">
+    <CollapsibleSection title="About Me">
       {isEditing ? (
         <div className="about-me">
           <label>
@@ -192,8 +192,8 @@ const MyPage = () => {
             Learning Style:
             <input
               type="text"
-              name="learningStyle"
-              value={formData.learningStyle || ""}
+              name="learningStyles"
+              value={formData.learningStyles.map((element) => ("goob"))}
               onChange={handleInputChange}
             />
           </label>
@@ -208,7 +208,7 @@ const MyPage = () => {
           <p><strong>Year:</strong> {profile.year}</p>
           <p><strong>GPA:</strong> {profile.gpa}</p>
           <p><strong>Department:</strong> {profile.department}</p>
-          <p><strong>Learning Style:</strong> {profile.learningStyle}</p>
+          <p><strong>Learning Style:</strong> {profile.learningStyles}</p>
           <button onClick={handleEditClick}>Edit</button>
         </div>
       )}
