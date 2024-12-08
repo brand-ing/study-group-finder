@@ -238,10 +238,11 @@ const Dashboard = () => {
     if (!messageEditID) {
       // Logic for sending the message
       setMessageText(''); // Clear the input field
+
       var [msgDocRef, msgSendError] = await addMessageToFirestore(
         collection(db, channelRef.path + "/Messages"),
         currentUser.uid,
-        userData.first_name,
+        getName(userData),
         txtToSend,
         replyToID
       )
@@ -302,7 +303,7 @@ const Dashboard = () => {
     var [msgDocRef, msgSendError] = await addMessageToFirestore(
       collection(db, channelRef.path + "/Messages"),
       currentUser.uid,
-      userData.first_name,
+      getName(userData),
       txtToSend,
       replyToID,
       true,
@@ -314,6 +315,19 @@ const Dashboard = () => {
     return [msgDocRef, msgSendError];
   }
   
+  const getName = (data) => {
+    //backwards compatibility lol
+    //order of priority = display_name > name > first_name
+    var nameUsed = data.first_name
+    if('name' in data) {
+      nameUsed = data.name
+    }
+    if('display_name' in data) {
+      nameUsed = data.display_name
+    }
+    return(nameUsed)
+  }
+
   const toggleGroupActivities = () => {
     // Logic to open the group activities shelf
   };
@@ -353,6 +367,8 @@ const Dashboard = () => {
   };
 
   async function handleGroupChange(e){
+
+    if(e.target.value == "default"){return} //there ought to be a better way to do this.
 
     console.log("Group changed to:" + e.target.value)
     setSelectedGroup(e.target.value);
@@ -559,9 +575,9 @@ const Dashboard = () => {
   }
 
   async function handleNewPoll(newPoll) {
-    console.log("Dashboard handleNewPoll: New poll " + newPoll.PollID + " detected:" + JSON.stringify(newPoll));
+    console.log("Dashboard handleNewPoll: New poll " + newPoll.pollID + " detected:" + JSON.stringify(newPoll));
     setNewPollData(newPoll);
-    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.PollID);
+    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.pollID);
     console.log("Dashboard handleNewPoll: post message send attempt - " + JSON.stringify(msgDocRef) + " ; " + JSON.stringify(msgSendError));
   }
 
@@ -600,6 +616,7 @@ const togglePollCreator = () => {
 const handlePollCreated = (pollData) => {
   console.log('Poll created:', pollData);
   // Optionally, send a message or update UI based on the new poll
+  handleNewPoll(pollData);
 };
 
   // Firestore listener for friend requests
@@ -716,7 +733,7 @@ async function handleFriendClick(id) {
     setChannelRef(userData.friendChannelList[i]);
     const friendDoc = await getDoc(doc(db, 'Users', id))
     const friendData = friendDoc.data();
-    const friendName = friendData.first_name;
+    const friendName = getName(friendData);
     console.log("handleFriendClick: name=" + friendName);
     setSelectedChannel(friendName);
   }catch(error) {
@@ -746,7 +763,8 @@ async function handleFriendClick(id) {
               <option>{item}</option>
             )) : <option>Failed to load</option>
             } */}
-           {groupArray.map((el, index) => 
+            <option key={"default"} value="default" selected>Select a group...</option>
+            {groupArray.map((el, index) => 
               React.createElement('option', { key: index }, el))}
           </select>
         <div className="sidebar-header">
