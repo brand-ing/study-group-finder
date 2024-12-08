@@ -119,18 +119,18 @@ const ProfileName = ({ name, setName, nextStep }) => {
 };
 
 
-const GenderSelector = ({ nextStep, currentStep, prevStep }) => (
+const GenderSelector = ({ nextStep, currentStep, prevStep, setGender }) => (
   <div className="profile-maker-container">
     <h2>Select your gender:</h2>
     <div className="radio-buttons">
       <label>
-        <input type="radio" name="gender" value="male" /> Male
+        <input type="radio" name="gender" value="male" onClick={() => setGender('Male')}/> Male
       </label>
       <label>
-        <input type="radio" name="gender" value="female" /> Female
+        <input type="radio" name="gender" value="female" onClick={() => setGender('Female')}/> Female
       </label>
       <label>
-        <input type="radio" name="gender" value="non-binary" /> Non-binary
+        <input type="radio" name="gender" value="non-binary" onClick={() => setGender('Non-binary')}/> Non-binary
       </label>
     </div>
     <div className="button-group">
@@ -156,7 +156,7 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
     year: '',
     gpa: '',
     department: '',
-    learningStyle: '',
+    learningStyles: [],
     bio: '',
   });
   const [majors, setMajors] = useState([]);
@@ -200,6 +200,11 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
     return !Object.values(newErrors).includes(true);
   };
 
+  const handleBioChange = (e) => {
+    setBio(e.target.value);
+    handleProfileChange(e);
+  }
+
   const handleGPAChange = (e) => {
     const value = e.target.value;
     let isNumeric = !isNaN(value);
@@ -218,8 +223,9 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
     setProfile({ ...profile, ["major"]:value, ["department"]: value });
   }
 
-  const handleNextStep = async() => {
+  const handleNextStep = async(e) => {
     // const userId = ; fetch userID
+    e.preventDefault();
     const user = auth.currentUser;
 
     if (!user) {
@@ -248,13 +254,49 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
     }
   };
 
+  
+  function LearningStyleSelector(props) {
+    const toggleLearningStyle = (learningStyle) => {
+      setProfile((prevProfile) => {
+        let prevLearningStyles = prevProfile.learningStyles;
+
+        //if it includes the learning style, remove it from the list
+        //otherwise, add it
+        if(prevLearningStyles.includes(learningStyle)) {
+          return {...prevProfile, ["learningStyles"] : prevLearningStyles.filter((item) => item !== learningStyle) }
+        } else {
+          return {...prevProfile, ["learningStyles"] : [...prevLearningStyles, learningStyle]}
+        }
+      })
+    };
+
+    const availablelearningStyles = ["Visual", "Auditory", "Physical", "Verbal", "Logical", "Social"]
+
+    return (
+      <div>
+        <h2>Select your learning styles</h2>
+        <div className="interests-container">
+          {availablelearningStyles.map((learningStyle) => (
+            <button
+              key={learningStyle}
+              className={`learningStyle-button ${profile.learningStyles.includes(learningStyle) ? 'selected' : ''}`}
+              onClick={() => toggleLearningStyle(learningStyle)}
+            >
+              {learningStyle}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <form className="profile-maker-container">
       <h2>Tell us a little about yourself!</h2>
       <textarea
         name="bio"
         value={profile.bio}
-        onChange={handleProfileChange}
+        onChange={handleBioChange}
         placeholder="Enter a short bio (up to 500 characters)"
         maxLength={500}
       />
@@ -301,7 +343,7 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
       {errors.year && <p className="error-text">Year is required.</p>}
       {/* GPA */}
       <label htmlFor="gpa">GPA</label>
-      <h3>(optional)</h3>
+      <h4>(optional)</h4>
       <input
         type="text"
         id="gpa"
@@ -318,7 +360,7 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
                       </div>
       )}
       {/* Learning Style */}
-      <label htmlFor="learningStyle">Learning Style</label>
+      {/* <label htmlFor="learningStyle">Learning Style</label>
       <input
         type="text"  // Placeholder for future quiz-based component
         id="learningStyle"
@@ -326,7 +368,9 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
         value={profile.learningStyle}
         onChange={handleProfileChange}
         placeholder="Describe your learning style"
-      />
+      /> */}
+      {/* TODO: add quiz */}
+      <LearningStyleSelector/> 
 
       <div className="button-group">
         <button className="next-btn" onClick={handleNextStep}>Next</button>
@@ -475,7 +519,7 @@ const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor,
       if (user) {
         const userDocRef = doc(db, 'Users', user.uid);
         await updateDoc(userDocRef, { profileCompleted: true });
-        await updateDoc(userDocRef, states);
+        await updateDoc(userDocRef, states); //if we are doing profiles in a separate collection, we shouldn't need this
         navigate('/group-hub'); // Navigate to the Join/Create Group page
         }
       } catch (err) {
@@ -513,7 +557,19 @@ const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor,
       {/* Schedule */}
       <div className="schedule-section">
         <h3>Schedule</h3>
-        <p>{JSON.stringify(states.availability)}</p>
+        <ul>
+        {Object.entries(states.availability).map(([day, times]) => {
+          const selectedTimes = Object.entries(times)
+            .filter(([_, isSelected]) => isSelected)
+            .map(([time]) => time);
+
+          return selectedTimes.length > 0 ? (
+            <p key={day}>
+              {day}: {selectedTimes.join(', ')}
+            </p>
+          ) : null;
+        })}
+        </ul>
       </div>
       <div className="button-group">
         <button className="next-btn" onClick={completeProfile}>Finish Profile</button>
@@ -528,6 +584,7 @@ const ProfileMaker = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
   const [selectedInterests, setSelectedInterests] = useState([]);
+  const [gender, setGender] = useState('');
 
   const [profilePicture, setProfilePicture] = useState(null); // Initialize profilePicture state
   const [highlightColor, setHighlightColor] = useState('#FF6347'); // Default highlight color (Tomato)
@@ -578,7 +635,7 @@ const ProfileMaker = () => {
   const steps = [
     <WelcomeMessage nextStep={nextStep} />,
     <ProfileName name={name} setName={setName} nextStep={nextStep} />,
-    <GenderSelector nextStep={nextStep} prevStep={prevStep}  />,
+    <GenderSelector nextStep={nextStep} prevStep={prevStep} setGender={setGender} />,
     <ProfilePictureSetup nextStep={nextStep} prevStep={prevStep}  name={name} setProfilePicture={setProfilePicture} setHighlightColor={setHighlightColor} />,
     <ProfileSetup bio={bio} setBio={setBio} nextStep={nextStep} prevStep={prevStep}  />,
     <InterestSelector
@@ -595,7 +652,8 @@ const ProfileMaker = () => {
         profilePicture: profilePicture,
         selectedInterests: selectedInterests,
         highlightColor: highlightColor,
-        availability: availability
+        availability: availability,
+        gender: gender,
       }      
     } />,
     // Add other steps (School, Bio, etc.)
