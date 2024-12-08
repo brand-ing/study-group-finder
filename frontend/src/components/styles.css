@@ -211,7 +211,8 @@ h2,body {
 
 .header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  margin-left: auto;
   align-items: flex-end;
   margin-bottom: 20px;
 }

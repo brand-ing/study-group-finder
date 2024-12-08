@@ -81,7 +81,7 @@ const PollMessageContent = ({ pollDocId, currentUserUid }) => {
 
     return (
         <div className="poll-message-content">
-            <h4>Poll</h4>
+            <h4>{('title' in pollData) ? pollData.title : 'Poll'}</h4>
             {!hasVoted && !pollEnded ? (
                 <div>
                     <div className="options">

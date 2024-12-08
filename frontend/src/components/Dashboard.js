@@ -303,7 +303,7 @@ const Dashboard = () => {
     var [msgDocRef, msgSendError] = await addMessageToFirestore(
       collection(db, channelRef.path + "/Messages"),
       currentUser.uid,
-      userData.first_name,
+      getName(userData),
       txtToSend,
       replyToID,
       true,
@@ -575,9 +575,9 @@ const Dashboard = () => {
   }
 
   async function handleNewPoll(newPoll) {
-    console.log("Dashboard handleNewPoll: New poll " + newPoll.PollID + " detected:" + JSON.stringify(newPoll));
+    console.log("Dashboard handleNewPoll: New poll " + newPoll.pollID + " detected:" + JSON.stringify(newPoll));
     setNewPollData(newPoll);
-    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.PollID);
+    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.pollID);
     console.log("Dashboard handleNewPoll: post message send attempt - " + JSON.stringify(msgDocRef) + " ; " + JSON.stringify(msgSendError));
   }
 
@@ -616,6 +616,7 @@ const togglePollCreator = () => {
 const handlePollCreated = (pollData) => {
   console.log('Poll created:', pollData);
   // Optionally, send a message or update UI based on the new poll
+  handleNewPoll(pollData);
 };
 
   // Firestore listener for friend requests
