@@ -156,13 +156,16 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
     year: '',
     gpa: '',
     department: '',
-    learningStyle: ''
+    learningStyle: '',
+    bio: '',
   });
   const [majors, setMajors] = useState([]);
   const [errors, setErrors] = useState({
     major: false,
     year: false,
   });
+  const [isGPACheckerVisible, setisGPACheckerVisible] = useState(false);
+  const [GPAValid, setGPAValid] = useState(false);
   
 
   useEffect(() => {
@@ -196,7 +199,24 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
     // Return true if no errors
     return !Object.values(newErrors).includes(true);
   };
+
+  const handleGPAChange = (e) => {
+    const value = e.target.value;
+    let isNumeric = !isNaN(value);
+    let isInRange = false;
+    if(isNumeric && value >= 0 && value <= 4.0) {
+      isInRange = true;
+    }  
+    handleProfileChange(e);
+    setGPAValid(isInRange);
+  }
   
+  //automatically fill in Department based on Major
+  //Users should still be able to change Department afterwards if they wish
+  const handleMajorChange = (e) => {
+    const value = e.target.value;
+    setProfile({ ...profile, ["major"]:value, ["department"]: value });
+  }
 
   const handleNextStep = async() => {
     // const userId = ; fetch userID
@@ -232,12 +252,13 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
     <form className="profile-maker-container">
       <h2>Tell us a little about yourself!</h2>
       <textarea
-        value={bio}
+        name="bio"
+        value={profile.bio}
         onChange={handleProfileChange}
         placeholder="Enter a short bio (up to 500 characters)"
         maxLength={500}
       />
-      <p>{bio.length}/500 characters</p>
+      <p>{profile.bio.length}/500 characters</p>
 
 {/* Major */}
     <label htmlFor="major">Major</label>
@@ -245,7 +266,7 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
         id="major"
         name="major"
         value={profile.major}
-        onChange={handleProfileChange} // Uses profile change handler
+        onChange={handleMajorChange}
         required
       >
         <option value="">Select your major</option>
@@ -286,9 +307,16 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
         id="gpa"
         name="gpa"
         value={profile.gpa}
-        onChange={handleProfileChange}
+        onChange={handleGPAChange}
+        onFocus={() => setisGPACheckerVisible(true)}
+        onBlur={() => setisGPACheckerVisible(false)}
         placeholder="Enter your GPA"
       />
+      {isGPACheckerVisible && (
+                      <div>
+                          <p>{GPAValid ? '✔️' : '❌'} Number between 0.0 and 4.0</p>
+                      </div>
+      )}
       {/* Learning Style */}
       <label htmlFor="learningStyle">Learning Style</label>
       <input
