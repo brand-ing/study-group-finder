@@ -431,16 +431,6 @@ const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sat
 const timeBlocks = ['Morning', 'Afternoon', 'Evening', 'Night'];
 
 const ScheduleSelector = ({ nextStep, prevStep,availability, setAvailability }) => {
-  // Initialize availability state
-  // const [availability, setAvailability] = useState(
-  //   daysOfWeek.reduce((acc, day) => {
-  //     acc[day] = {}; 
-  //     timeBlocks.forEach((time) => {
-  //       acc[day][time] = false; // All time blocks are unselected by default
-  //     });
-  //     return acc;
-  //   }, {})
-  // );
 
   // Toggle availability for a specific day and time
   const toggleAvailability = (day, time) => {
@@ -544,16 +534,6 @@ const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor,
 
       </div>
 
-      {/* Interests
-      <div className="interests-section">
-        <h3>Interests</h3>
-        <ul>
-          {selectedInterests.map((interest, index) => (
-            <li key={index}>{interest}</li>
-          ))}
-        </ul>
-      </div> */}
-
       {/* Schedule */}
       <div className="schedule-section">
         <h3>Schedule</h3>
@@ -598,30 +578,6 @@ const ProfileMaker = () => {
       return acc;
     }, {})
   );
-
-  
-  const handleGroupSelection = (groupId) => {
-    // Here, implement the logic for joining the group by ID
-    // var userDocRef = doc(db, 'Users', user.uid);
-    // var groupDocRef = doc(db, 'Groups', groupId);
-
-    // const updateUser = await updateDoc(doc(db,"Users",user.uid),
-    //   {groups: arrayUnion(groupDocRef)}
-    // )
-
-    // const updateGroup = await updateDoc(docRef,
-    //   {members: arrayUnion(userDocRef)}
-    // )
-    alert(`Joined group with ID: ${groupId}`);
-    nextStep();
-  };
-
-  const handleJoinWithCode = (code) => {
-    // Add logic to verify the code and join the group if valid
-    alert(`Attempting to join with code: ${code}`);
-    // For now, treat group IDs as group codes :)
-    nextStep();
-  };
 
   const nextStep = () => {
     setCurrentStep((prevStep) => prevStep + 1);
