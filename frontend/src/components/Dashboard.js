@@ -22,7 +22,6 @@ import TaskManager from "./TaskManager";
 import ScheduleManager from "./ScheduleManager";
 
 import SearchBarWithFilters from "./SearchBarWithFilters";
-import NotificationsCenter from "./NotificationsCenter";
 
 import GroupList from "./GroupList";
 import GroupNotifications from "./GroupNotifications";
@@ -30,6 +29,9 @@ import MyGroups from "./MyGroups";
 import GroupActions from "./GroupActions";
 import GroupSearchPage from "./GroupSearchPage";
 import GroupModeration from "./GroupModeration";
+import { handleFileUpload } from './FileUploadHandler.js';
+import FileUploadComponent from "./FileUploadComponent";
+import NotificationCenter from './NotificationsCenter';
 
 
 
@@ -83,7 +85,7 @@ async function addMessageToFirestore(msgCollection,uid,userDisplayName, content,
   
   
   
-const Dashboard = ({ handleGroupChange }) => {
+const Dashboard = () => {
   const [error, setError] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [username, setUsername] = useState("User"); // Should be dynamically set now
@@ -121,6 +123,9 @@ const Dashboard = ({ handleGroupChange }) => {
     { type: 'TO-DOs', content: 'Task Z is due soon' },
   ]);
 
+      const pushNotification = (notification) => {
+        setNotifications((prev) => [notification, ...prev]);
+    };
 
   const [notificationFilter, setNotificationFilter] = useState('ALL');
   
@@ -245,7 +250,7 @@ setUserGroups(gdata.map((group) => group.groupName));
       try {
         const storageRef = ref(storage, `uploads/${groupId}/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
-  
+
         uploadTask.on(
           "state_changed",
           (snapshot) => {
@@ -395,45 +400,110 @@ setUserGroups(gdata.map((group) => group.groupName));
     toast("test notification"); // testing to see if a notification will appear if the bell icon is clicked
   };
 
+// Group Change Logic with Debugging
+const handleGroupChange = async (index) => {
+  try {
+      console.log("Attempting to Change Group at Index:", index);
 
-  async function handleChannelChange(ref) {
-    setChannelRef(ref);
-
-    if (ref != null) {
-      try{
-        const channelDataDoc =  await getDoc(ref);
-        const channelData = channelDataDoc.data()
-        const channelSubCollection = collection(db, ref.path + "/Messages");
-        const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
-
-        const channelMessagesSnapshot = await getDocs(q);
-        console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
-
-        updateMessages(channelMessagesSnapshot);
-      } catch(error) {
-        console.log("handleChannelChange: failed to load channel messages - " + error);
+      // Check If Group Exists
+      const selectedGroup = userGroups[index];
+      if (!selectedGroup) {
+          console.error("Group not found at index:", index);
+          return;
       }
-    } else {
-      setError("Group has no channels!")
-      setMessages([]);
-    };
-  }
-  function updateMessages(qSnapshot) {
-    var messageArray = [];
-    var debugOutput = [];
-    qSnapshot.forEach((doc) => {
-      // console.log(doc.id, " => ", doc.data());
-      debugOutput.push("updateMessages msgdoc: " + doc.id + " => " + JSON.stringify(doc.data()))
-      messageArray.push({
-        id: doc.id,
-        data: doc.data(),
-        newlocal: false}
-      )
-    })
-    console.log(debugOutput);
-    setMessages(messageArray)
-  }
 
+      console.log("Group Selected:", selectedGroup);
+
+      // Check If Group Has Channels
+      if (!selectedGroup.channels || !selectedGroup.channels.length) {
+          console.error("Group has no channels:", selectedGroup);
+          setMessages([]); // Clear Messages
+          return;
+      }
+
+      // Extract First Channel Reference
+      const firstChannelRef = doc(
+          db,
+          "Channels",
+          selectedGroup.channels[0].id
+      );
+
+      console.log(
+          "First Channel Ref Found:",
+          firstChannelRef.path,
+          "for Group:",
+          selectedGroup.groupName
+      );
+
+      // Handle Channel Change
+      await handleChannelChange(firstChannelRef);
+  } catch (error) {
+      console.error("Error during group change:", error);
+  }
+};
+
+// Channel Change Logic
+async function handleChannelChange(ref) {
+  try {
+      if (!ref) {
+          console.error("Channel ref is null.");
+          setMessages([]);
+          return;
+      }
+
+      console.log("Loading channel ref:", ref.path);
+
+      // Fetch Channel Data
+      const channelDataDoc = await getDoc(ref);
+
+      if (!channelDataDoc.exists()) {
+          console.error("Channel not found:", ref.path);
+          setMessages([]);
+          return;
+      }
+
+      const channelData = channelDataDoc.data();
+      console.log("Loaded Channel Data:", channelData);
+
+      // Fetch Messages in the Channel
+      const channelSubCollection = collection(
+          db,
+          `${ref.path}/Messages`
+      );
+      const q = query(channelSubCollection, orderBy("timestamp"), limit(100));
+      const channelMessagesSnapshot = await getDocs(q);
+
+      console.log("Channel messages snapshot loaded:", channelMessagesSnapshot);
+
+      // Update Messages
+      updateMessages(channelMessagesSnapshot);
+  } catch (error) {
+      console.error("handleChannelChange: Failed to load channel messages -", error);
+      setError("Failed to load channel messages.");
+  }
+}
+
+// Update Messages Function
+function updateMessages(qSnapshot) {
+  const messageArray = [];
+  const debugOutput = [];
+
+  qSnapshot.forEach((doc) => {
+      const messageData = doc.data();
+      debugOutput.push(
+          `updateMessages msgdoc: ${doc.id} => ${JSON.stringify(messageData)}`
+      );
+
+      messageArray.push({
+          id: doc.id,
+          data: messageData,
+          newlocal: false,
+      });
+  });
+
+  console.log("Messages Debug Output:", debugOutput);
+  setMessages(messageArray);
+}
 
 
     
@@ -821,9 +891,11 @@ async function handleFriendClick(id) {
         
         <div className="chat-input-container">
         {/* File Upload Button */}
-            <button className="file-upload-btn" onClick={handleFileUpload}>
-            +  
-            </button>
+        <FileUploadComponent
+                                groupId={userGroups}
+                                userId={userData}
+                                pushNotification={pushNotification}
+            />
           {/* Message Input Field */}
           <input
             type="text"
@@ -929,7 +1001,7 @@ async function handleFriendClick(id) {
     //       TO-DOs
     //     </button>
     //   </div>
-    <NotificationsCenter />
+    <NotificationCenter initialNotifications={notifications} />
   )}
 </div>
 

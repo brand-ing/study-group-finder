@@ -2,17 +2,17 @@
 import React from "react";
 
 const NotificationFilters = ({ currentFilter, onFilterChange }) => {
-    const filterTypes = ["ALL", "FILES", "EVENTS", "TO-DOs"];
+    const filters = ["ALL", "FILES", "EVENTS", "TO-DOs"];
 
     return (
         <div className="filter-buttons">
-            {filterTypes.map((type) => (
+            {filters.map((filter) => (
                 <button
-                    key={type}
-                    className={currentFilter === type ? "active" : ""}
-                    onClick={() => onFilterChange(type)}
+                    key={filter}
+                    className={currentFilter === filter ? "active" : ""}
+                    onClick={() => onFilterChange(filter)}
                 >
-                    {type}
+                    {filter}
                 </button>
             ))}
         </div>

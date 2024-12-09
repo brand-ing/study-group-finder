@@ -1,34 +1,46 @@
 // NotificationCenter.js
 import React, { useState, useEffect } from "react";
-import { getFirestore, collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import {
+    getFirestore,
+    collection,
+    query,
+    onSnapshot,
+    orderBy,
+} from "firebase/firestore";
 import NotificationFilters from "./NotificationFilters";
 import NotificationList from "./NotificationList";
-import './Notification.css';
+import "./Notification.css";
 
-const NotificationCenter = () => {
-    const [notifications, setNotifications] = useState([]);
+const NotificationCenter = ({ initialNotifications = [] }) => {
+    const [notifications, setNotifications] = useState(initialNotifications);
     const [filteredNotifications, setFilteredNotifications] = useState([]);
     const [filter, setFilter] = useState("ALL");
+
     const db = getFirestore();
 
-    // Load Notifications in Real Time
+    // Load Notifications in Real-Time from Firestore
     useEffect(() => {
-        const notificationsRef = query(
-            collection(db, "Notifications"),
-            orderBy("timestamp", "desc")
-        );
+        if (initialNotifications.length > 0) {
+            setNotifications(initialNotifications);
+            setFilteredNotifications(initialNotifications);
+        } else {
+            const notificationsRef = query(
+                collection(db, "Notifications"),
+                orderBy("timestamp", "desc")
+            );
 
-        const unsubscribe = onSnapshot(notificationsRef, (snapshot) => {
-            const loadedNotifications = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setNotifications(loadedNotifications);
-            setFilteredNotifications(loadedNotifications);
-        });
+            const unsubscribe = onSnapshot(notificationsRef, (snapshot) => {
+                const loadedNotifications = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setNotifications(loadedNotifications);
+                setFilteredNotifications(loadedNotifications);
+            });
 
-        return () => unsubscribe();
-    }, [db]);
+            return () => unsubscribe();
+        }
+    }, [db, initialNotifications]);
 
     // Filter Notifications Based on Type
     const applyFilter = (filterType) => {

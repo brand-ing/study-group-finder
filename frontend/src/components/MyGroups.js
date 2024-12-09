@@ -2,13 +2,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const MyGroups = ({ userGroups }) => {
+const MyGroups = ({ userGroups, handleGroupChange}) => {
     const [showOptions, setShowOptions] = useState(false);  // "+" Menu
     const [contextMenuVisible, setContextMenuVisible] = useState(false);  // Right-Click Menu
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const navigate = useNavigate();
 
+    
     // Handle Right-Click
     const handleRightClick = (e, group) => {
         e.preventDefault();  // Prevent Default Context Menu
@@ -46,6 +47,7 @@ const MyGroups = ({ userGroups }) => {
                     <div
                         key={index}
                         className="group-card"
+                        onClick={() => handleGroupChange(index)}
                         onContextMenu={(e) => handleRightClick(e, group)}
                     >
                         <h3>{group || "Unnamed Group"}</h3>
