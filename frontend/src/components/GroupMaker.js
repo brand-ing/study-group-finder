@@ -8,7 +8,7 @@ import './styles.css';
 const GroupMaker = () => {
   const [groupName, setGroupName] = useState('');
   const [subject, setSubject] = useState('');
-  const [meetingTimes, setMeetingTimes] = useState([]);
+  // const [meetingTimes, setMeetingTimes] = useState([]);
   const [description, setDescription] = useState('');
   const [maxSize, setMaxSize] = useState(5); 
   
@@ -16,6 +16,20 @@ const GroupMaker = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');  // To track any error message
   
+
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dayTimeBlocks = ['Morning', 'Afternoon', 'Evening', 'Night'];
+
+  const [meetingTimes, setMeetingTimes] = useState(
+    daysOfWeek.reduce((acc, day) => {
+      acc[day] = {}; 
+      dayTimeBlocks.forEach((time) => {
+        acc[day][time] = false; // All time blocks are unselected by default
+      });
+      return acc;
+    }, {})
+  );
+
   const navigate = useNavigate();
   const onCreateGroup = (groupData) => {
 
@@ -117,6 +131,59 @@ const GroupMaker = () => {
     'Engineering', 'Political Science', 'Art', 'Music', 'Sociology'
   ];
 
+  
+  const MeetingTimes = ({setTimeBlocks, timeBlocks}) => {
+
+    if(timeBlocks == undefined) {return}
+
+    // Toggle availability for a specific day and time
+    const toggleTimeBlock = (day, time) => {
+      setTimeBlocks((prevTimeBlocks) => ({
+        ...prevTimeBlocks,
+        [day]: {
+          ...prevTimeBlocks[day],
+          [time]: !prevTimeBlocks[day][time],
+        },
+      }));
+    };
+
+    // Render the weekly schedule grid
+    return (
+      <div className="schedule-container">
+        <div className="schedule-grid">
+          {/* Render header row with days of the week */}
+          <div className="grid-row header-row">
+            <div className="grid-cell time-label" /> {/* Empty cell for alignment */}
+            {daysOfWeek.map((day) => (
+              <div key={day} className="grid-cell header-cell">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Render time blocks for each day */}
+          {dayTimeBlocks.map((time) => (
+            <div key={time} className="grid-row">
+              {/* Time label on the left */}
+              <div className="grid-cell time-label">{time}</div>
+
+              {/* Day cells with toggle functionality */}
+              {daysOfWeek.map((day) => (
+                <div
+                  key={`${day}-${time}`}
+                  className={`grid-cell time-block ${timeBlocks[day][time] ? 'selected' : ''}`}
+                  onClick={() => toggleTimeBlock(day, time)}
+                >
+                  {timeBlocks[day][time] ? '✓' : ''}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="group-maker-container">
       <h2>Create a New Group</h2>
@@ -131,7 +198,7 @@ const GroupMaker = () => {
       />
 
       <label>Subject/Category</label>
-      <select value={subject} onChange={(e) => setSubject(e.target.value)}>
+      <select className="" value={subject} onChange={(e) => setSubject(e.target.value)}>
         {availableInterests.map(interest => 
           React.createElement('option', {key: interest, value:interest}, interest)
         )}
@@ -144,7 +211,8 @@ const GroupMaker = () => {
       </select>
 
       <label>Meeting Times</label>
-      <div className="meeting-times">
+      <MeetingTimes setTimeBlocks={setMeetingTimes} timeBlocks={meetingTimes}/>
+      {/* <div className="meeting-times">
         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
           <label key={day}>
             <input
@@ -156,7 +224,7 @@ const GroupMaker = () => {
             {day}
           </label>
         ))}
-      </div>
+      </div> */}
 
       <label>Group Description (Optional)</label>
       <textarea
@@ -168,6 +236,7 @@ const GroupMaker = () => {
 
       <label>Max Group Size</label>
       <input
+        className='size-input'
         type="number"
         value={maxSize}
         onChange={(e) => setMaxSize(e.target.value)}
@@ -175,9 +244,11 @@ const GroupMaker = () => {
         max="10"
       />
 
-      <button className="create-group-btn" onClick={handleSubmit}>
-        Create Group
-      </button>
+      <div>
+        <button className="create-group-btn" onClick={handleSubmit}>
+          Create Group
+        </button>
+      </div>
     </div>
   );
 };

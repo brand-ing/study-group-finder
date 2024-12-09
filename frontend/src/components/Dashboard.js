@@ -141,7 +141,7 @@ const Dashboard = () => {
             let curr = await getDoc(data.groups[i])
             let currData = curr.data();
             // console.log("curr: " + JSON.stringify(currData));
-            gdata.push(currData);
+            gdata.push({...currData, groupID: curr.id});
             groups.push(currData.groupName);
           }
           // console.log(gdata);
@@ -238,6 +238,10 @@ const Dashboard = () => {
     if (!messageEditID) {
       // Logic for sending the message
       setMessageText(''); // Clear the input field
+      var namedUsed = userData.first_name
+      if('display_name' in userData) {
+        let namedUsed = userData.display_name
+      }
       var [msgDocRef, msgSendError] = await addMessageToFirestore(
         collection(db, channelRef.path + "/Messages"),
         currentUser.uid,
@@ -353,6 +357,8 @@ const Dashboard = () => {
   };
 
   async function handleGroupChange(e){
+
+    if(e.target.value == "default"){return} //there ought to be a better way to do this.
 
     console.log("Group changed to:" + e.target.value)
     setSelectedGroup(e.target.value);
@@ -746,7 +752,8 @@ async function handleFriendClick(id) {
               <option>{item}</option>
             )) : <option>Failed to load</option>
             } */}
-           {groupArray.map((el, index) => 
+            <option key={"default"} value="default" selected>Select a group...</option>
+            {groupArray.map((el, index) => 
               React.createElement('option', { key: index }, el))}
           </select>
         <div className="sidebar-header">
@@ -811,7 +818,11 @@ async function handleFriendClick(id) {
       {/* Main Chat Area */}
       <div className="main-content">
         <div className="header">
-          <h3 className="group-name">{selectedChannel}</h3>
+          <div>
+            <h3 className="group-name">{selectedChannel}</h3>
+            <h5>{(currGroupData && 'description' in currGroupData) ? currGroupData.description : ''}</h5>
+          </div>
+
                     {/* Notifications Button */}
           <NotificationToggle />
           <button onClick={() => navigate('/support')} className="floating-help-button">
@@ -854,73 +865,83 @@ async function handleFriendClick(id) {
         </div>
       </div>
 
-      {/* Right Sidebar: for notifications and activity creation. */}
-      <div className={`sidebar activities ${isRightSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
+  {/* Right Sidebar: for notifications and activity creation. */}
+  <div className={`sidebar activities ${isRightSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
   {/* Toggle Button */}
   <button onClick={toggleRightSidebar} className="toggle-button">
     {isRightSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
   </button>
 
-  {/* Make Events Section */}
-  {!isRightSidebarCollapsed && (
+  <div className="right-sidebar-container">
+    {/* Make Events Section */}
+    {!isRightSidebarCollapsed && (
+      <div className="make-events">
+        <div>
+          <h3>Activities</h3>
+          {/* Schedule Manager Button */}
+          <button className="schedule-button" onClick={toggleScheduleManager}>
+            Schedule an Event
+          </button>
+          <button className="poll-button" onClick={togglePollCreator}>
+                    Create a Poll
+          </button>
+          <button className="task-button" onClick={toggleTaskManager}>
+            Task Manager
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Notifications Section */}
+    {!isRightSidebarCollapsed && (
+      <div className="notifications-section">
+        <h3>Notifications</h3>
+        <div className="filter-buttons">
+          <button
+            className={notificationFilter === 'ALL' ? 'active' : ''}
+            onClick={() => setNotificationFilter('ALL')}
+          >
+            ALL
+          </button>
+          <button
+            className={notificationFilter === 'FILES' ? 'active' : ''}
+            onClick={() => setNotificationFilter('FILES')}
+          >
+            FILES
+          </button>
+          <button
+            className={notificationFilter === 'EVENTS' ? 'active' : ''}
+            onClick={() => setNotificationFilter('EVENTS')}
+          >
+            EVENTS
+          </button>
+          <button
+            className={notificationFilter === 'TO-DOs' ? 'active' : ''}
+            onClick={() => setNotificationFilter('TO-DOs')}
+          >
+            TO-DOs
+          </button>
+        </div>
+        <ul className="notifications-list">
+          {filteredNotifications.map((notification, index) => (
+            <li key={index} className="notification-item">
+              {notification.content}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+
+{!isRightSidebarCollapsed && (
     <div className="make-events">
-      <h3>Activities</h3>
-      {/* Schedule Manager Button */}
-      <button className="schedule-button" onClick={toggleScheduleManager}>
-        Schedule an Event
-      </button>
-      <button className="poll-button" onClick={togglePollCreator}>
-                Create a Poll
-      </button>
-      <button className="task-button" onClick={toggleTaskManager}>
-        Task Manager
-      </button>
       {/* Render if visible */}
       {isTaskManagerVisible && <TaskManager onClose={toggleTaskManager} />}
-      {isScheduleManagerVisible && <ScheduleManager onClose={toggleScheduleManager} />}
+      {isScheduleManagerVisible && <ScheduleManager onClose={toggleScheduleManager} groupID={currGroupData.groupID}/>}
       {isPollCreatorVisible && <PollCreator onClose={togglePollCreator} onPollCreated={handlePollCreated}/>} 
     </div>
   )}
 
-  {/* Notifications Section */}
-  {!isRightSidebarCollapsed && (
-    <div className="notifications-section">
-      <h3>Notifications</h3>
-      <div className="filter-buttons">
-        <button
-          className={notificationFilter === 'ALL' ? 'active' : ''}
-          onClick={() => setNotificationFilter('ALL')}
-        >
-          ALL
-        </button>
-        <button
-          className={notificationFilter === 'FILES' ? 'active' : ''}
-          onClick={() => setNotificationFilter('FILES')}
-        >
-          FILES
-        </button>
-        <button
-          className={notificationFilter === 'EVENTS' ? 'active' : ''}
-          onClick={() => setNotificationFilter('EVENTS')}
-        >
-          EVENTS
-        </button>
-        <button
-          className={notificationFilter === 'TO-DOs' ? 'active' : ''}
-          onClick={() => setNotificationFilter('TO-DOs')}
-        >
-          TO-DOs
-        </button>
-      </div>
-      <ul className="notifications-list">
-        {filteredNotifications.map((notification, index) => (
-          <li key={index} className="notification-item">
-            {notification.content}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
 </div>
 
 

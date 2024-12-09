@@ -3,10 +3,22 @@ import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { toast } from 'react-toastify';
 
+
 const PollCreator = ({ onPollCreated, onClose }) => {
     const [options, setOptions] = useState(['']); // Start with one empty option field
-    const [duration, setDuration] = useState({ months: 0, days: 0, hours: 0, minutes: 0 });
+
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const defaultStartDate = now.toISOString().slice(0,16);
+
+    var nowPlusOnehour = new Date(now.getTime());
+    nowPlusOnehour.setTime(nowPlusOnehour.getTime() + (1*60*60*1000)); //add one hour
+    const defaultEndDate = nowPlusOnehour.toISOString().slice(0,16);
+
+    const [startDate, setStartDate] = useState(defaultStartDate);
+    const [endDate, setEndDate] = useState(defaultEndDate);
     const [error, setError] = useState(null);
+    const [title, setTitle] = useState('');
 
     // Add a new empty option input
     const addOptionField = () => setOptions([...options, '']);
@@ -18,22 +30,6 @@ const PollCreator = ({ onPollCreated, onClose }) => {
         setOptions(updatedOptions);
     };
 
-    // Handle duration input change
-    const handleDurationChange = (field, value) => {
-        const updatedDuration = { ...duration, [field]: Number(value) };
-        setDuration(updatedDuration);
-    };
-
-    // Calculate end date from the current time and duration
-    const calculateEndDate = () => {
-        const now = new Date();
-        now.setMonth(now.getMonth() + duration.months);
-        now.setDate(now.getDate() + duration.days);
-        now.setHours(now.getHours() + duration.hours);
-        now.setMinutes(now.getMinutes() + duration.minutes);
-        return now;
-    };
-
     // Submit the poll to Firestore
     const createPoll = async () => {
         try {
@@ -41,52 +37,74 @@ const PollCreator = ({ onPollCreated, onClose }) => {
                 setError('All options must be filled out.');
                 return;
             }
-            if (
-                !duration.months &&
-                !duration.days &&
-                !duration.hours &&
-                !duration.minutes
-            ) {
-                setError('Please set a valid duration.');
+            if (!startDate || !endDate) {
+                setError('Start and end dates are required.');
                 return;
             }
-
-            const endDate = calculateEndDate();
 
             const pollData = {
                 options,
                 votes: Array(options.length).fill(0), // Initialize vote counts to 0
-                startDate: Timestamp.fromDate(new Date()),
-                endDate: Timestamp.fromDate(endDate),
-                voted: [], // Stores user IDs
+                startDate: Timestamp.fromDate(new Date(startDate)),
+                endDate: Timestamp.fromDate(new Date(endDate)),
+                voted: [], //Stores user IDs, will be updated
+                title: title,
             };
 
-            // Add the poll to the Firestore collection
             const docRef = await addDoc(collection(db, 'Polls'), pollData);
 
+            console.log("PollCreator: attempting to call parent function: " + JSON.stringify(onPollCreated));
             // Notify success and pass the poll data to the parent component
             toast.success('Poll created successfully!');
             if (onPollCreated) {
                 onPollCreated({
                     ...pollData,
-                    PollID: docRef.id, // Add the Firestore document ID
+                    pollID: docRef.id, // Add the Firestore document ID
                 });
             }
-
-            // Reset form state
-            setError(null);
+            setError(null); // Clear error on success
+            // Optionally reset the form
             setOptions(['']);
-            setDuration({ months: 0, days: 0, hours: 0, minutes: 0 });
-            onClose(); // Close the PollCreator after successful submission
+            setStartDate('');
+            setEndDate('');
+            if(onClose) {
+                onClose();
+            }
         } catch (err) {
-            console.error(err);
-            setError('Failed to create poll. Please try again.');
+            setError('Failed to create poll. Please try again.' + err);
         }
     };
 
     return (
         <div className="poll-creator">
             <h3>Create a New Poll</h3>
+            <div>
+                <input
+                    key="title"
+                    type="text"
+                    placeholder={`Enter title...`}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+            </div>
+            <div className="poll-dates">
+                <label>
+                    Start Date:
+                    <input
+                        type="datetime-local"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                    />
+                </label>
+                <label>
+                    End Date:
+                    <input
+                        type="datetime-local"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                    />
+                </label>
+            </div>
 
             <div className="poll-options">
                 {options.map((option, index) => (
@@ -103,64 +121,11 @@ const PollCreator = ({ onPollCreated, onClose }) => {
                 </button>
             </div>
 
-            <div className="poll-duration">
-                <h4>Set Duration</h4>
-                <div>
-                    <label>
-                        Months:
-                        <input
-                            type="number"
-                            min="0"
-                            value={duration.months}
-                            onChange={(e) => handleDurationChange('months', e.target.value)}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Days:
-                        <input
-                            type="number"
-                            min="0"
-                            value={duration.days}
-                            onChange={(e) => handleDurationChange('days', e.target.value)}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Hours:
-                        <input
-                            type="number"
-                            min="0"
-                            value={duration.hours}
-                            onChange={(e) => handleDurationChange('hours', e.target.value)}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Minutes:
-                        <input
-                            type="number"
-                            min="0"
-                            value={duration.minutes}
-                            onChange={(e) => handleDurationChange('minutes', e.target.value)}
-                        />
-                    </label>
-                </div>
-            </div>
-
             {error && <p className="error">{error}</p>}
 
-            <div className="poll-creator-buttons">
-                <button type="button" onClick={createPoll} className="submit-poll">
-                    Submit Poll
-                </button>
-                <button type="button" onClick={onClose} className="cancel-poll">
-                    Cancel
-                </button>
-            </div>
+            <button type="button" onClick={createPoll} className="submit-poll">
+                Submit Poll
+            </button>
         </div>
     );
 };
