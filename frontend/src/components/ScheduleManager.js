@@ -76,85 +76,96 @@ const ScheduleManager = ({ onClose }) => {
 
   return (
     <div className="schedule-manager">
-      <h3>Schedule Manager</h3>
+      <div>
+        <div>
+          <h3>Schedule Manager</h3>
 
-      {/* Calendar for selecting a date */}
-      <Calendar onChange={handleDateChange} value={selectedDate} />
-
-      <p>Selected Date: {selectedDate.toDateString()}</p>
-
-      {/* Form for scheduling events */}
-      <form onSubmit={handleScheduleSubmit}>
-        <label>
-          Event Title
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Event Description
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Time Slot
-          <input
-            type="time"
-            value={timeSlot}
-            onChange={(e) => setTimeSlot(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Category
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
-            <option value="Study">Study</option>
-            <option value="Meeting">Meeting</option>
-            <option value="Lecture">Lecture</option>
-            <option value="Custom">Custom</option>
-          </select>
-        </label>
-        {category === "Custom" && (
-          <label>
-            Suggest a Category
-            <input
-              type="text"
-              value={customCategory}
-              onChange={(e) => setCustomCategory(e.target.value)}
-              required
-            />
-          </label>
-        )}
-        <button type="submit">Schedule Event</button>
-      </form>
-
-      {/* Conflict Resolution */}
-      {conflict && (
-        <div className="conflict-message">
-          <p>
-            This time slot is unavailable. Please choose an alternate time
-            slot:
-          </p>
-          <ul>
-            {availableSlots.map((slot, index) => (
-              <li key={index}>{slot}</li>
-            ))}
-          </ul>
+          {/* Calendar for selecting a date */}
+          <Calendar onChange={handleDateChange} value={selectedDate} />
+          <p>Selected Date: {selectedDate.toDateString()}</p>
         </div>
-      )}
+        
+        {/* Form for scheduling events */}
+        <div className="event-creator">
+          <form onSubmit={handleScheduleSubmit}>
+            <div>
+              <label>
+                Event Title
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Event Description
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+            <div>
+              <label>
+                Time Slot
+                <input
+                  type="time"
+                  value={timeSlot}
+                  onChange={(e) => setTimeSlot(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Category
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                >
+                  <option value="Study">Study</option>
+                  <option value="Meeting">Meeting</option>
+                  <option value="Lecture">Lecture</option>
+                  <option value="Custom">Custom</option>
+                </select>
+              </label>
+            
+              {category === "Custom" && (
+                <label>
+                  Suggest a Category
+                  <input
+                    type="text"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    required
+                  />
+                </label>
+              )}
+              <button type="submit">Schedule Event</button>
+            </div>
+          </form>
 
+
+          {/* Conflict Resolution */}
+          {conflict && (
+            <div className="conflict-message">
+              <p>
+                This time slot is unavailable. Please choose an alternate time
+                slot:
+              </p>
+              <ul>
+                {availableSlots.map((slot, index) => (
+                  <li key={index}>{slot}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+        </div>
+      </div>
       {/* Back Button */}
-      <button onClick={onClose}>Close</button>
+      <button className="schedule-manager-close" onClick={onClose}>Close</button>
     </div>
   );
 };

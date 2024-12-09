@@ -105,7 +105,8 @@ h2,body {
   /* Overall dashboard layout */
 .dashboard {
   display: flex;
-  height: 100vh;
+  /* height: 100vh; */
+  max-height: fit-content;
 }
 
 
@@ -288,6 +289,10 @@ h2,body {
   left: 0; */
 }
 
+.chat-input-container > * {
+  margin: 2px;
+}
+
 
 .file-upload-btn,
 .send-btn,
@@ -414,7 +419,8 @@ h2,body {
   border: 1px solid #ddd;
   outline: none;
   font-size: 1em;
-  min-width: 80%;
+  min-width: 20%;
+  max-width:80%;
 }
 
 .message-input:focus {
@@ -1963,19 +1969,29 @@ button:disabled {
 
 
 /* Area 1: Activities Right Sidebar */
+.right-sidebar-container {
+  display:flex;
+  flex-direction: column;
+}
+
 .sidebar.activities {
   width: 50px;
   background-color: #f0f0f0;
   border-right: 1px solid #ddd;
   transition: width 0.3s ease;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 10px 0;
+  padding: 10px 0px;
+  margin: 5px;
+}
+
+.sidebar.activities.collapsed{
+  width:50px;
 }
 
 .sidebar.activities.expanded {
-  width: 500px;
+  width:80%;
 }
 
 .sidebar.activities .sidebar-header {
@@ -2007,6 +2023,17 @@ button:disabled {
   border: none;
   cursor: pointer;
   font-size: 1.2em;
+  padding: 5px;
+  max-width: 25px;
+  margin: 5 auto;
+}
+
+.make-events {
+  display: flex;
+}
+
+.make-events > * {
+  margin: 10px;
   padding: 5px;
 }
 
@@ -2168,20 +2195,52 @@ button:disabled {
 }
 
 /* Event Component  */
-.event-scheduler {
+
+
+.schedule-manager > div {
+  width: 100%;
+  max-width: 700px;
+  margin-right:auto;
+  display:flex;
+  flex-direction: row;
+}
+
+.schedule-manager {
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
-  margin: 0 auto; /* Center horizontally */
+  max-width: 700px;
+  display:flex;
+  flex-direction: column;
+  height: fit-content;
+}
+
+.make-events {
+  transition: width 0.3s ease;
+}
+
+.schedule-manager > .schedule-manager-close {
+  margin-top: auto;
+  width: 100%;
 }
 
 .event-creator {
   display: flex;
   flex-direction: column; /* Stack items vertically */
   gap: 10px;
+  padding: 12px;
+  width:50%;
+}
+
+.event-creator > form {
+  display:flex;
+  flex-direction: row;
+}
+
+.event-creator > form > div {
+  margin: 5px;
 }
 
 .event-creator input,
@@ -2293,3 +2352,4 @@ footer .register-btn {
   background: #61dafb;
   color: #000;
 } 
+

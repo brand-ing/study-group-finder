@@ -865,27 +865,76 @@ async function handleFriendClick(id) {
         </div>
       </div>
 
-      {/* Right Sidebar: for notifications and activity creation. */}
-      <div className={`sidebar activities ${isRightSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
+  {/* Right Sidebar: for notifications and activity creation. */}
+  <div className={`sidebar activities ${isRightSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
   {/* Toggle Button */}
   <button onClick={toggleRightSidebar} className="toggle-button">
     {isRightSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
   </button>
 
-  {/* Make Events Section */}
-  {!isRightSidebarCollapsed && (
+  <div className="right-sidebar-container">
+    {/* Make Events Section */}
+    {!isRightSidebarCollapsed && (
+      <div className="make-events">
+        <div>
+          <h3>Activities</h3>
+          {/* Schedule Manager Button */}
+          <button className="schedule-button" onClick={toggleScheduleManager}>
+            Schedule an Event
+          </button>
+          <button className="poll-button" onClick={togglePollCreator}>
+                    Create a Poll
+          </button>
+          <button className="task-button" onClick={toggleTaskManager}>
+            Task Manager
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Notifications Section */}
+    {!isRightSidebarCollapsed && (
+      <div className="notifications-section">
+        <h3>Notifications</h3>
+        <div className="filter-buttons">
+          <button
+            className={notificationFilter === 'ALL' ? 'active' : ''}
+            onClick={() => setNotificationFilter('ALL')}
+          >
+            ALL
+          </button>
+          <button
+            className={notificationFilter === 'FILES' ? 'active' : ''}
+            onClick={() => setNotificationFilter('FILES')}
+          >
+            FILES
+          </button>
+          <button
+            className={notificationFilter === 'EVENTS' ? 'active' : ''}
+            onClick={() => setNotificationFilter('EVENTS')}
+          >
+            EVENTS
+          </button>
+          <button
+            className={notificationFilter === 'TO-DOs' ? 'active' : ''}
+            onClick={() => setNotificationFilter('TO-DOs')}
+          >
+            TO-DOs
+          </button>
+        </div>
+        <ul className="notifications-list">
+          {filteredNotifications.map((notification, index) => (
+            <li key={index} className="notification-item">
+              {notification.content}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+
+{!isRightSidebarCollapsed && (
     <div className="make-events">
-      <h3>Activities</h3>
-      {/* Schedule Manager Button */}
-      <button className="schedule-button" onClick={toggleScheduleManager}>
-        Schedule an Event
-      </button>
-      <button className="poll-button" onClick={togglePollCreator}>
-                Create a Poll
-      </button>
-      <button className="task-button" onClick={toggleTaskManager}>
-        Task Manager
-      </button>
       {/* Render if visible */}
       {isTaskManagerVisible && <TaskManager onClose={toggleTaskManager} />}
       {isScheduleManagerVisible && <ScheduleManager onClose={toggleScheduleManager} />}
@@ -893,45 +942,6 @@ async function handleFriendClick(id) {
     </div>
   )}
 
-  {/* Notifications Section */}
-  {!isRightSidebarCollapsed && (
-    <div className="notifications-section">
-      <h3>Notifications</h3>
-      <div className="filter-buttons">
-        <button
-          className={notificationFilter === 'ALL' ? 'active' : ''}
-          onClick={() => setNotificationFilter('ALL')}
-        >
-          ALL
-        </button>
-        <button
-          className={notificationFilter === 'FILES' ? 'active' : ''}
-          onClick={() => setNotificationFilter('FILES')}
-        >
-          FILES
-        </button>
-        <button
-          className={notificationFilter === 'EVENTS' ? 'active' : ''}
-          onClick={() => setNotificationFilter('EVENTS')}
-        >
-          EVENTS
-        </button>
-        <button
-          className={notificationFilter === 'TO-DOs' ? 'active' : ''}
-          onClick={() => setNotificationFilter('TO-DOs')}
-        >
-          TO-DOs
-        </button>
-      </div>
-      <ul className="notifications-list">
-        {filteredNotifications.map((notification, index) => (
-          <li key={index} className="notification-item">
-            {notification.content}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
 </div>
 
 
