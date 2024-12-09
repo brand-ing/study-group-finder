@@ -2234,6 +2234,14 @@ button:disabled {
   width:50%;
 }
 
+.event-duration {
+  display:flex;
+  flex-direction: row;
+}
+.event-duration > input {
+  width:40px;
+}
+
 .event-creator > form {
   display:flex;
   flex-direction: row;
@@ -2352,4 +2360,3 @@ footer .register-btn {
   background: #61dafb;
   color: #000;
 } 
-

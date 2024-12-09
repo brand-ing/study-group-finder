@@ -141,7 +141,7 @@ const Dashboard = () => {
             let curr = await getDoc(data.groups[i])
             let currData = curr.data();
             // console.log("curr: " + JSON.stringify(currData));
-            gdata.push(currData);
+            gdata.push({...currData, groupID: curr.id});
             groups.push(currData.groupName);
           }
           // console.log(gdata);
@@ -937,7 +937,7 @@ async function handleFriendClick(id) {
     <div className="make-events">
       {/* Render if visible */}
       {isTaskManagerVisible && <TaskManager onClose={toggleTaskManager} />}
-      {isScheduleManagerVisible && <ScheduleManager onClose={toggleScheduleManager} />}
+      {isScheduleManagerVisible && <ScheduleManager onClose={toggleScheduleManager} groupID={currGroupData.groupID}/>}
       {isPollCreatorVisible && <PollCreator onClose={togglePollCreator} onPollCreated={handlePollCreated}/>} 
     </div>
   )}
