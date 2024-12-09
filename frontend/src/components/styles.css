@@ -281,9 +281,11 @@ h2,body {
   border-top: 1px solid #ddd;
   background-color: #f9f9f9;
 
-  position: absolute;
+  /* https://css-tricks.com/the-peculiar-magic-of-flexbox-and-auto-margins/ */
+  margin-top: auto;
+  /* position: absolute;
   bottom: 0;
-  left: 0;
+  left: 0; */
 }
 
 
