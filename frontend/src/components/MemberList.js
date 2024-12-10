@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from './firebaseConfig';
-import { doc, updateDoc, arrayRemove } from 'firebase/firestore';
+import { doc, updateDoc, arrayRemove, getDoc } from 'firebase/firestore';
 
 const MemberList = ({ members, groupOwner, groupId, currentUser }) => {
+    const [memberData, setMemberData] = useState([]);
     // Remove Member from Group
     const handleRemoveMember = async (memberId) => {
         if (memberId === groupOwner) {
@@ -22,11 +23,13 @@ const MemberList = ({ members, groupOwner, groupId, currentUser }) => {
         }
     };
 
+
+
     return (
         <div className="member-list">
             <h2>Group Members</h2>
             {members.map((member) => (
-                <div key={member.id} className="member-item">
+                <div key={member.uid} className="member-item">
                     <p>{member.name || "Unnamed User"}</p>
 
                     {/* Only the group owner can remove members */}

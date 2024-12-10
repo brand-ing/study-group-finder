@@ -1,6 +1,6 @@
 // MyGroups.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 
 const MyGroups = ({ userGroups, handleGroupChange}) => {
     const [showOptions, setShowOptions] = useState(false);  // "+" Menu
@@ -38,12 +38,14 @@ const MyGroups = ({ userGroups, handleGroupChange}) => {
         setContextMenuVisible(false);  // Close After Action
     };
 
+    var userGroupsNames = userGroups.map((group) => (group.groupName));
+
     console.log("Rendering User Groups in MyGroups:", userGroups);
 
     return (
         <div className="my-groups-container" onClick={handleLeftClick}>
-            {userGroups.length > 0 ? (
-                userGroups.map((group, index) => (
+            {userGroupsNames.length > 0 ? (
+                userGroupsNames.map((group, index) => (
                     <div
                         key={index}
                         className="group-card"

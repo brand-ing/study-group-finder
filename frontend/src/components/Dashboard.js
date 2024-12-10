@@ -180,7 +180,7 @@ const Dashboard = () => {
                     }
 
                     const groupData = groupDoc.data();
-                    gdata.push(groupData);  // Store full group data
+                    gdata.push({...groupData, id:groupDoc.id});  // Store full group data
                     groups.push(groupData.groupName);  // Store group name
                     return groupData;
                 });
@@ -196,11 +196,13 @@ const Dashboard = () => {
                 }
 
                 // Inline Debug Inside the Existing Console Log
-console.log(
-  "Loaded Groups:",
-  gdata.map((group) => group.groupName || "Unnamed Group")
-);
-setUserGroups(gdata.map((group) => group.groupName));
+            console.log(
+              "Loaded Groups:",
+              gdata.map((group) => group|| "Unnamed Group")
+            );
+            setUserGroups(gdata.map((group) => group));
+            
+
 
             } catch (err) {
                 console.error("Error in fetchData:", err);
@@ -428,6 +430,8 @@ const handleGroupChange = async (index) => {
           selectedGroup.channels[0].id
       );
 
+      setChannelRef(firstChannelRef);
+
       console.log(
           "First Channel Ref Found:",
           firstChannelRef.path,
@@ -622,9 +626,9 @@ function updateMessages(qSnapshot) {
   }
 
   async function handleNewPoll(newPoll) {
-    console.log("Dashboard handleNewPoll: New poll " + newPoll.PollID + " detected:" + JSON.stringify(newPoll));
+    console.log("Dashboard handleNewPoll: New poll " + newPoll.pollId + " detected:" + JSON.stringify(newPoll));
     setNewPollData(newPoll);
-    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.PollID);
+    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.pollId);
     console.log("Dashboard handleNewPoll: post message send attempt - " + JSON.stringify(msgDocRef) + " ; " + JSON.stringify(msgSendError));
   }
 
@@ -662,6 +666,7 @@ const togglePollCreator = () => {
 
 const handlePollCreated = (pollData) => {
   console.log('Poll created:', pollData);
+  handleNewPoll(pollData);
   // Optionally, send a message or update UI based on the new poll
 };
 
@@ -809,7 +814,7 @@ async function handleFriendClick(id) {
         {/* Group Management UI */}
         {error && <p className="error">Error loading data: {error.message}</p>}
 
-{userData ? (
+{(userData) ? (
     <div className="group-management">
         <MyGroups
             userGroups={userGroups}
@@ -949,27 +954,29 @@ async function handleFriendClick(id) {
     </div>
   )}
 
-<div className="group-list">
-                {userGroups.length > 0 ? (
-                    userGroups.map((group) => (
-                        <div key={group.id} className="group-card">
-                            <h3>{group.groupName}</h3>
+  {!isRightSidebarCollapsed ? 
+    <div className="group-list">
+      {userGroups.length > 0  ? (
+          userGroups.map((group) => (
+              <div key={group.id} className="group-card">
+                  <h3>{group.groupName}</h3>
 
-                            {/* Add Manage Group Button */}
-                            <button
-                                className="manage-group-btn"
-                                onClick={() =>
-                                    window.location.href = `/group-moderation/${group.id}`
-                                }
-                            >
-                                Manage Group
-                            </button>
-                        </div>
-                    ))
-                ) : (
-                    <p>No groups found. Join or create one!</p>
-                )}
-            </div>
+                  {/* Add Manage Group Button */}
+                  <button
+                      className="manage-group-btn"
+                      onClick={() =>
+                          window.location.href = `/group-moderation/${group.id}`
+                      }
+                  >
+                      Manage Group
+                  </button>
+              </div>
+          ))
+      ) : (
+          <p>No groups found. Join or create one!</p>
+      )}
+    </div>
+  : <></>}
 
   {/* Notifications Section */}
   {!isRightSidebarCollapsed && (
