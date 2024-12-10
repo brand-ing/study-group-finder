@@ -1,1 +1,7 @@
 node_modules
+
+# Ignore scripts folder
+/scripts/
+
+# Ignore Firebase service account keys
+*.json

@@ -183,6 +183,7 @@ const ProfileSetup = ({ bio, setBio,  nextStep, currentStep, prevStep}) => {
 
   // Handle changes for profile fields
   const handleProfileChange = (e) => {
+    e.preventDefault();
     const { name, value } = e.target;
     setProfile({ ...profile, [name]: value });
   };
@@ -441,7 +442,8 @@ const ScheduleSelector = ({ nextStep, prevStep,availability, setAvailability }) 
 // Profile Summary page
 const ProfileSummary = ({prevStep, name, gender, profilePicture, highlightColor, bio, selectedInterests, schedule, states}) => { //NOTE: unsure about this one so I just added "states to it"
   const navigate = useNavigate();
-  const completeProfile = async () => {
+  const completeProfile = async (e) => {
+    e.preventDefault();
     try {
       const user = auth.currentUser;
       if (user) {

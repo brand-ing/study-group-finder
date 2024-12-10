@@ -21,6 +21,18 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import TaskManager from "./TaskManager";
 import ScheduleManager from "./ScheduleManager";
 
+import SearchBarWithFilters from "./SearchBarWithFilters";
+
+import GroupList from "./GroupList";
+import GroupNotifications from "./GroupNotifications";
+import MyGroups from "./MyGroups";
+import GroupActions from "./GroupActions";
+import GroupSearchPage from "./GroupSearchPage";
+import GroupModeration from "./GroupModeration";
+import { handleFileUpload } from './FileUploadHandler.js';
+import FileUploadComponent from "./FileUploadComponent";
+import NotificationCenter from './NotificationsCenter';
+
 
 
 const notify = () => toast("Here is your toast.");
@@ -78,7 +90,7 @@ const Dashboard = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [username, setUsername] = useState("User"); // Should be dynamically set now
   const [currentUser, setCurrentUser] = useState();
-  const [userData , setUserData] = useState();
+  const [userData , setUserData] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Sidebar collapse state
   const [groupDataArray,setGroupDataArray] = useState();
@@ -97,6 +109,7 @@ const Dashboard = () => {
   const [isRightSidebarCollapsed, setIsRightSidebarCollapsed] = useState(true);
   const [newPollData, setNewPollData] = useState(); 
   const [activeSideBar, setActiveSideBar] = useState('');
+  const [userGroups, setUserGroups] = useState([]);
 
   const [groupActivitiesMenuOpen, setGroupActivitiesMenuOpen] = useState(false);
   const [currGroupData, setCurrGroupData] = useState();
@@ -110,59 +123,100 @@ const Dashboard = () => {
     { type: 'TO-DOs', content: 'Task Z is due soon' },
   ]);
 
+      const pushNotification = (notification) => {
+        setNotifications((prev) => [notification, ...prev]);
+    };
+
   const [notificationFilter, setNotificationFilter] = useState('ALL');
   
   const filteredNotifications = notifications.filter((notification) =>
     notificationFilter === 'ALL' ? true : notification.type === notificationFilter
   );
-  
 
+  const [showSearch, setShowSearch] = useState(false);
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        const uid = user.uid;
-        console.log("User authenticated:" + uid);
+        if (!user) {
+            console.warn("User is signed out. Redirecting to login.");
+            navigate("/login");
+            return;
+        }
+
+        console.log("User authenticated:", user.uid);
         setCurrentUser(user);
         setUsername(user.email);
+
+        // Fetch User & Groups Data
         async function fetchData() {
-          const [data, error] = await fetchFirestoreUserData(user);
-          setUserData(data);
-          setError(error);
-          if(error) {console.log(error)};
+            try {
+                // Fetch user data from Firestore
+                const [data, error] = await fetchFirestoreUserData(user);
 
-          var groups = [];
-          var gdata = [];
+                if (error || !data) {
+                    console.error("Error fetching user data:", error);
+                    setError(error || "User data not found.");
+                    return;
+                }
 
-          const numberGroups = ((data.groups && data.groups.length) ? data.groups.length : 0);
+                console.log("Fetched User Data:", data);
+                // Prepare Group Data Fetching
+                const groups = [];
+                const gdata = [];
+                const numberGroups = data.groups?.length || 0;
 
-          for(var i = 0; i < numberGroups; i++) {
-            let curr = await getDoc(data.groups[i])
-            let currData = curr.data();
-            // console.log("curr: " + JSON.stringify(currData));
-            gdata.push(currData);
-            groups.push(currData.groupName);
-          }
-          // console.log(gdata);
-          setGroupArray(groups);
-          setGroupDataArray(gdata);
+                // Set Base Data
+                setUserData(data);
+                setError(null);  // Clear errors if any
 
-          if('friendList' in data) {
-            setFriendList(data.friendList);
-          }
-        };
+
+                // Fetch Group Details from Firestore
+                const groupFetchPromises = data.groups.map(async (groupRef) => {
+                    const groupDoc = await getDoc(groupRef);
+
+                    if (!groupDoc.exists()) {
+                        console.warn("Group doc not found for ref:", groupRef);
+                        return null;
+                    }
+
+                    const groupData = groupDoc.data();
+                    gdata.push({...groupData, id:groupDoc.id});  // Store full group data
+                    groups.push(groupData.groupName);  // Store group name
+                    return groupData;
+                });
+
+                // Wait for All Groups to Load
+                await Promise.all(groupFetchPromises);
+
+                // Update State After Data Fetch
+                setGroupDataArray(gdata);
+
+                if (data.friendList) {
+                    setFriendList(data.friendList);  // Set Friends if Present
+                }
+
+                // Inline Debug Inside the Existing Console Log
+            console.log(
+              "Loaded Groups:",
+              gdata.map((group) => group|| "Unnamed Group")
+            );
+            setUserGroups(gdata.map((group) => group));
+            
+
+
+            } catch (err) {
+                console.error("Error in fetchData:", err);
+                setError("Error fetching data.");
+            }
+        }
+
         fetchData();
-        // ...
-      } else {
-        // User is signed out
-        // ...
-        navigate('/login');
-      }
-      console.log("Auth state changed");
+        console.log("Auth state changed.");
     });
+
     return unsubscribe;
-  }, []);
+}, []);
+
 
   //Realtime updates for new messages from other users
   //https://firebase.google.com/docs/firestore/query-data/listen
@@ -181,6 +235,7 @@ const Dashboard = () => {
     return unsubscribe;
   },[channelRef])
 
+// Group in sidebar stuff...
 
 
   // Putting event handlers for chat here for now...
@@ -197,7 +252,7 @@ const Dashboard = () => {
       try {
         const storageRef = ref(storage, `uploads/${groupId}/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
-  
+
         uploadTask.on(
           "state_changed",
           (snapshot) => {
@@ -314,11 +369,6 @@ const Dashboard = () => {
     return [msgDocRef, msgSendError];
   }
   
-  const toggleGroupActivities = () => {
-    // Logic to open the group activities shelf
-  };
-  
-
 
   const handleSignOut = async () => {
     try {
@@ -352,95 +402,112 @@ const Dashboard = () => {
     toast("test notification"); // testing to see if a notification will appear if the bell icon is clicked
   };
 
-  async function handleGroupChange(e){
+// Group Change Logic with Debugging
+const handleGroupChange = async (index) => {
+  try {
+      console.log("Attempting to Change Group at Index:", index);
 
-    console.log("Group changed to:" + e.target.value)
-    setSelectedGroup(e.target.value);
-    setSelectedChannel(e.target.value);
-    var groupData = groupDataArray.filter(function (el) {
-      return el.groupName == e.target.value;
-    })
-    let currRef;
-
-
-    //Whyyyyy
-    currRef = (groupData.length > 0) ? groupData[0].channels[0] : null
-    setCurrGroupData((groupData.length > 0) ? groupData[0] : null)
-
-    //MESSY
-    var groupData = (groupData.length > 0) ? groupData[0] : null;
-    var groupOwnerRef = groupData.members[0];
-    try{
-      var groupOwnerDoc = await getDoc(groupOwnerRef);
-    } catch(error) {
-      console.log("could not retrieve group owner doc:" + error);
-    }
-
-    if(groupOwnerDoc) {setCurrGroupOwner(groupOwnerDoc.id)};
-
-
-    console.log("groupData.members[0]:" + JSON.stringify(groupOwnerRef));
-
-
-    // setChannelRef( currRef ); 
-    handleChannelChange(currRef);
-    //note: setstate functions are async, so there is no guarantee 
-    //that they are set right after calling
-    console.log("Group ref grabbed" + currRef + "; statevar: " + channelRef);
-
-    // if (currRef != null) {
-    //   const channelDataDoc =  await getDoc(currRef);
-    //   const channelData = channelDataDoc.data()
-    //   const channelSubCollection = collection(db, currRef.path + "/Messages");
-    //   const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
-
-    //   const channelMessagesSnapshot = await getDocs(q);
-    //   console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
-
-    //   updateMessages(channelMessagesSnapshot);
-    // } else {
-    //   setError("Group has no channels!")
-    //   setMessages([]);
-    // };
-  }
-  async function handleChannelChange(ref) {
-    setChannelRef(ref);
-
-    if (ref != null) {
-      try{
-        const channelDataDoc =  await getDoc(ref);
-        const channelData = channelDataDoc.data()
-        const channelSubCollection = collection(db, ref.path + "/Messages");
-        const q = query(channelSubCollection, orderBy('timestamp'), limit(100)); // grab last 100 messages 
-
-        const channelMessagesSnapshot = await getDocs(q);
-        console.log("channel msgs snapshot loaded:" + channelMessagesSnapshot);
-
-        updateMessages(channelMessagesSnapshot);
-      } catch(error) {
-        console.log("handleChannelChange: failed to load channel messages - " + error);
+      // Check If Group Exists
+      const selectedGroup = userGroups[index];
+      if (!selectedGroup) {
+          console.error("Group not found at index:", index);
+          return;
       }
-    } else {
-      setError("Group has no channels!")
-      setMessages([]);
-    };
-  }
-  function updateMessages(qSnapshot) {
-    var messageArray = [];
-    var debugOutput = [];
-    qSnapshot.forEach((doc) => {
-      // console.log(doc.id, " => ", doc.data());
-      debugOutput.push("updateMessages msgdoc: " + doc.id + " => " + JSON.stringify(doc.data()))
-      messageArray.push({
-        id: doc.id,
-        data: doc.data(),
-        newlocal: false}
-      )
-    })
-    console.log(debugOutput);
-    setMessages(messageArray)
-  }
 
+      console.log("Group Selected:", selectedGroup);
+
+      // Check If Group Has Channels
+      if (!selectedGroup.channels || !selectedGroup.channels.length) {
+          console.error("Group has no channels:", selectedGroup);
+          setMessages([]); // Clear Messages
+          return;
+      }
+
+      // Extract First Channel Reference
+      const firstChannelRef = doc(
+          db,
+          "Channels",
+          selectedGroup.channels[0].id
+      );
+
+      setChannelRef(firstChannelRef);
+
+      console.log(
+          "First Channel Ref Found:",
+          firstChannelRef.path,
+          "for Group:",
+          selectedGroup.groupName
+      );
+
+      // Handle Channel Change
+      await handleChannelChange(firstChannelRef);
+  } catch (error) {
+      console.error("Error during group change:", error);
+  }
+};
+
+// Channel Change Logic
+async function handleChannelChange(ref) {
+  try {
+      if (!ref) {
+          console.error("Channel ref is null.");
+          setMessages([]);
+          return;
+      }
+
+      console.log("Loading channel ref:", ref.path);
+
+      // Fetch Channel Data
+      const channelDataDoc = await getDoc(ref);
+
+      if (!channelDataDoc.exists()) {
+          console.error("Channel not found:", ref.path);
+          setMessages([]);
+          return;
+      }
+
+      const channelData = channelDataDoc.data();
+      console.log("Loaded Channel Data:", channelData);
+
+      // Fetch Messages in the Channel
+      const channelSubCollection = collection(
+          db,
+          `${ref.path}/Messages`
+      );
+      const q = query(channelSubCollection, orderBy("timestamp"), limit(100));
+      const channelMessagesSnapshot = await getDocs(q);
+
+      console.log("Channel messages snapshot loaded:", channelMessagesSnapshot);
+
+      // Update Messages
+      updateMessages(channelMessagesSnapshot);
+  } catch (error) {
+      console.error("handleChannelChange: Failed to load channel messages -", error);
+      setError("Failed to load channel messages.");
+  }
+}
+
+// Update Messages Function
+function updateMessages(qSnapshot) {
+  const messageArray = [];
+  const debugOutput = [];
+
+  qSnapshot.forEach((doc) => {
+      const messageData = doc.data();
+      debugOutput.push(
+          `updateMessages msgdoc: ${doc.id} => ${JSON.stringify(messageData)}`
+      );
+
+      messageArray.push({
+          id: doc.id,
+          data: messageData,
+          newlocal: false,
+      });
+  });
+
+  console.log("Messages Debug Output:", debugOutput);
+  setMessages(messageArray);
+}
 
 
     
@@ -559,9 +626,9 @@ const Dashboard = () => {
   }
 
   async function handleNewPoll(newPoll) {
-    console.log("Dashboard handleNewPoll: New poll " + newPoll.PollID + " detected:" + JSON.stringify(newPoll));
+    console.log("Dashboard handleNewPoll: New poll " + newPoll.pollId + " detected:" + JSON.stringify(newPoll));
     setNewPollData(newPoll);
-    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.PollID);
+    var [msgDocRef, msgSendError] = await handleSendPollMessage(newPoll.pollId);
     console.log("Dashboard handleNewPoll: post message send attempt - " + JSON.stringify(msgDocRef) + " ; " + JSON.stringify(msgSendError));
   }
 
@@ -599,6 +666,7 @@ const togglePollCreator = () => {
 
 const handlePollCreated = (pollData) => {
   console.log('Poll created:', pollData);
+  handleNewPoll(pollData);
   // Optionally, send a message or update UI based on the new poll
 };
 
@@ -734,21 +802,31 @@ async function handleFriendClick(id) {
           </button>
         </div>
       }
- 
       {/* Friends Sidebar */}
       {/* Some of the formatting and indentation here scares me. */}
       <div className={`sidebar friends ${isSidebarCollapsed ? 'collapsed' : 'expanded'}`}>
         <button className="dashboard-button" onClick={goToDashboard}>
           <FiHome className="button-icon" /> 
         </button>
-        <select className="group-select" onChange={handleGroupChange} value={selectedGroup}>
-            {/* {userData.groups ? userData.groups.map((item, index) => (
-              <option>{item}</option>
-            )) : <option>Failed to load</option>
-            } */}
-           {groupArray.map((el, index) => 
-              React.createElement('option', { key: index }, el))}
-          </select>
+          <button onClick={toggleSidebar} className="toggle-button">
+            {isSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
+        </button>
+        {/* Group Management UI */}
+        {error && <p className="error">Error loading data: {error.message}</p>}
+
+{(userData) ? (
+    <div className="group-management">
+        <MyGroups
+            userGroups={userGroups}
+            selectedGroup={selectedGroup}
+            handleGroupChange={handleGroupChange}
+        />
+        
+    </div>
+) : (
+    <p>Loading user data...</p>
+)}
+
         <div className="sidebar-header">
           {!isSidebarCollapsed ? (
             <input 
@@ -761,20 +839,8 @@ async function handleFriendClick(id) {
               <FiSearch size={20} />
             </button>
           )}
-          <button onClick={toggleSidebar} className="toggle-button">
-            {isSidebarCollapsed ? <FiChevronRight size={24} /> : <FiChevronLeft size={24} />}
-        </button>
+
         </div>
-
-
-        {/* <div className="friend-list">
-          <div className="friend-circle"></div>
-          <div className="friend-circle"></div>
-          <div className="friend-circle"></div>
-          <div className="friend-circle"></div>
-          <div className="friend-circle add-new">+</div>
-        </div> */}
-
         <FriendList 
           friendList={friendList} 
           setCurrentFriend={handleFriendClick} 
@@ -811,12 +877,19 @@ async function handleFriendClick(id) {
       {/* Main Chat Area */}
       <div className="main-content">
         <div className="header">
+
           <h3 className="group-name">{selectedChannel}</h3>
-                    {/* Notifications Button */}
-          <NotificationToggle />
-          <button onClick={() => navigate('/support')} className="floating-help-button">
+          {currGroupData && (
+    <div className="group-owner-info">
+        <h4>Group Owner:</h4>
+        <p>{currGroupOwner || "Unknown"}</p>
+    </div>
+)}
+          <button className="send-btn" onClick={() =>navigate("/support")}>
             Help
           </button>
+                    {/* Notifications Button */}
+          <NotificationToggle /> 
         </div>
         <div className="message-area">
           {((messages && messages.length > 0) ? messages.map(msg => 
@@ -826,9 +899,11 @@ async function handleFriendClick(id) {
         
         <div className="chat-input-container">
         {/* File Upload Button */}
-            <button className="file-upload-btn" onClick={handleFileUpload}>
-            +  
-            </button>
+        <FileUploadComponent
+                                groupId={userGroups}
+                                userId={userData}
+                                pushNotification={pushNotification}
+            />
           {/* Message Input Field */}
           <input
             type="text"
@@ -882,44 +957,61 @@ async function handleFriendClick(id) {
     </div>
   )}
 
+  {!isRightSidebarCollapsed ? 
+    <div className="group-list">
+      {userGroups.length > 0  ? (
+          userGroups.map((group) => (
+              <div key={group.id} className="group-card">
+                  <h3>{group.groupName}</h3>
+
+                  {/* Add Manage Group Button */}
+                  <button
+                      className="manage-group-btn"
+                      onClick={() =>
+                          window.location.href = `/group-moderation/${group.id}`
+                      }
+                  >
+                      Manage Group
+                  </button>
+              </div>
+          ))
+      ) : (
+          <p>No groups found. Join or create one!</p>
+      )}
+    </div>
+  : <></>}
+
   {/* Notifications Section */}
   {!isRightSidebarCollapsed && (
-    <div className="notifications-section">
-      <h3>Notifications</h3>
-      <div className="filter-buttons">
-        <button
-          className={notificationFilter === 'ALL' ? 'active' : ''}
-          onClick={() => setNotificationFilter('ALL')}
-        >
-          ALL
-        </button>
-        <button
-          className={notificationFilter === 'FILES' ? 'active' : ''}
-          onClick={() => setNotificationFilter('FILES')}
-        >
-          FILES
-        </button>
-        <button
-          className={notificationFilter === 'EVENTS' ? 'active' : ''}
-          onClick={() => setNotificationFilter('EVENTS')}
-        >
-          EVENTS
-        </button>
-        <button
-          className={notificationFilter === 'TO-DOs' ? 'active' : ''}
-          onClick={() => setNotificationFilter('TO-DOs')}
-        >
-          TO-DOs
-        </button>
-      </div>
-      <ul className="notifications-list">
-        {filteredNotifications.map((notification, index) => (
-          <li key={index} className="notification-item">
-            {notification.content}
-          </li>
-        ))}
-      </ul>
-    </div>
+    // <div className="notifications-section">
+    //   <h3>Notifications</h3>
+    //   <div className="filter-buttons">
+    //     <button
+    //       className={notificationFilter === 'ALL' ? 'active' : ''}
+    //       onClick={() => setNotificationFilter('ALL')}
+    //     >
+    //       ALL
+    //     </button>
+    //     <button
+    //       className={notificationFilter === 'FILES' ? 'active' : ''}
+    //       onClick={() => setNotificationFilter('FILES')}
+    //     >
+    //       FILES
+    //     </button>
+    //     <button
+    //       className={notificationFilter === 'EVENTS' ? 'active' : ''}
+    //       onClick={() => setNotificationFilter('EVENTS')}
+    //     >
+    //       EVENTS
+    //     </button>
+    //     <button
+    //       className={notificationFilter === 'TO-DOs' ? 'active' : ''}
+    //       onClick={() => setNotificationFilter('TO-DOs')}
+    //     >
+    //       TO-DOs
+    //     </button>
+    //   </div>
+    <NotificationCenter initialNotifications={notifications} />
   )}
 </div>
 

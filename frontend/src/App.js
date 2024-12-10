@@ -12,6 +12,8 @@ import JoinGroup from './components/JoinGroup';
 import GroupMaker from './components/GroupMaker';
 import {FindGroupFiller, GroupFinder, GroupNavigation} from './components/GroupFinder'
 import SupportForm from './components/SupportForm';
+import GroupSearchPage from './components/GroupSearchPage';
+import GroupModeration from './components/GroupModeration';
 
 function App() {
   const handleLoginSuccess = () => {
@@ -35,6 +37,11 @@ function App() {
           <Route path="/group-hub" element={<GroupFinder />} />
           <Route path="/group-navigation" element={<FindGroupFiller />} />
           <Route path="/support" element={<SupportForm />} />
+          <Route path="/group-search" element={<GroupSearchPage />} />
+          <Route
+                    path="/group-moderation/:groupId"
+                    element={<GroupModeration />}
+                />
         </Routes>
       </div>  
     </Router>
