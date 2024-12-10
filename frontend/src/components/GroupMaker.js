@@ -52,6 +52,7 @@ const GroupMaker = () => {
       // Create a new group document in Firestore
       const docRef = await addDoc(collection(db, "Groups"), {
         groupName: groupData.groupName,
+        groupOwner: groupData.uid,
         subject: groupData.subject,
         meetingTimes: groupData.meetingTimes,
         description: groupData.description,

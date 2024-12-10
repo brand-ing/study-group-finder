@@ -5,8 +5,11 @@ import { auth, db } from './firebaseConfig';
 
 const FriendList = ({ friendList, setCurrentFriend, handleAddFriendRequest, sidebarOff = true, setSideBar }) => {
     const [showInput, setShowInput] = useState(false);
+    const [selectedFriend, setSelectedFriend] = useState(null);
     const [friendCode, setFriendCode] = useState('');
     const [pictures, setPictures] = useState([]);
+    const [showContextMenu, setShowContextMenu] = useState(false);
+    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
     const handleAddFriendClick = () => {
         if(sidebarOff) {setShowInput(true)};
@@ -45,6 +48,30 @@ const FriendList = ({ friendList, setCurrentFriend, handleAddFriendRequest, side
         return updatedList;
     }
 
+    // Invite Friend to Group
+    const inviteFriendToGroup = async (friendId, groupId) => {
+        try {
+            const groupRef = doc(db, 'Groups', groupId);
+            await updateDoc(groupRef, {
+                members: arrayUnion(friendId),
+            });
+            alert('Friend invited successfully!');
+            setShowContextMenu(false);
+        } catch (error) {
+            console.error('Error inviting friend:', error);
+            alert('Failed to invite friend.');
+        }
+    };
+
+    // Handle Right-Click on Friend
+    const handleRightClick = (e, friendId) => {
+        e.preventDefault();
+        setSelectedFriend(friendId);
+        setMenuPosition({ x: e.pageX, y: e.pageY });
+        setShowContextMenu(true);
+    };
+
+
     useEffect(() => {
         retrievePictures();
     },[friendList]);
@@ -58,12 +85,26 @@ const FriendList = ({ friendList, setCurrentFriend, handleAddFriendRequest, side
                     id={"friend_" + element.id}
                     className="friend-circle" 
                     onClick={() => setCurrentFriend(element.id)}
+                    onContextMenu={(e) => handleRightClick(e, element.id)}
                 >
                     {/* Optionally, you can add a placeholder for friend profile picture */}
                     <img src={element.picURL} alt="Profile" className="profile-picture friend" />
                 </div>
             ))}
-            
+{showContextMenu && (
+                <div
+                    className="context-menu"
+                    style={{
+                        top: `${menuPosition.y}px`,
+                        left: `${menuPosition.x}px`,
+                    }}
+                >
+                    <p onClick={() => inviteFriendToGroup(selectedFriend, "testGroupID")}>
+                        Invite to Group
+                    </p>
+                    <p onClick={() => setShowContextMenu(false)}>Cancel</p>
+                </div>
+            )}
             <div className="friend-circle add-new" onClick={handleAddFriendClick}>+</div>
             {showInput && (
                 <div className="add-friend-input">

@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.22ac2ec1.css",
+    "main.js": "/static/js/main.5bcb58f2.js",
+    "static/js/453.a2218de9.chunk.js": "/static/js/453.a2218de9.chunk.js",
+    "index.html": "/index.html",
+    "static/media/lfg-logo.svg": "/static/media/lfg-logo.0949cd1ceecea7f1cb0ecddb1755e92c.svg",
+    "main.22ac2ec1.css.map": "/static/css/main.22ac2ec1.css.map",
+    "main.5bcb58f2.js.map": "/static/js/main.5bcb58f2.js.map",
+    "453.a2218de9.chunk.js.map": "/static/js/453.a2218de9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.22ac2ec1.css",
+    "static/js/main.5bcb58f2.js"
+  ]
+}

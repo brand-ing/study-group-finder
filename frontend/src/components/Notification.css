@@ -35,3 +35,91 @@
     color: #555;
   }
   
+
+  /* General Styles */
+.notification-center {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+}
+
+h2 {
+  text-align: center;
+}
+
+/* Filters */
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.filter-buttons button {
+  margin: 0 5px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #007bff;
+  color: white;
+}
+
+.filter-buttons .active {
+  background: #004fbf;
+}
+
+/* Notifications List */
+/* Notifications List Styles */
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-item {
+  position: relative;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 15px 20px;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.notification-content {
+  padding-right: 50px; /* Space for the delete button */
+  cursor: pointer;
+}
+
+.notification-content h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.notification-content p {
+  margin: 5px 0;
+}
+
+.notification-content small {
+  color: #666;
+}
+
+/* Delete Button - Top-Right Corner */
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #f44336;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  text-align: center;
+}
+
+.delete-btn:hover {
+  background: #d32f2f;
+}
