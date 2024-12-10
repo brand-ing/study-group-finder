@@ -885,6 +885,9 @@ async function handleFriendClick(id) {
         <p>{currGroupOwner || "Unknown"}</p>
     </div>
 )}
+          <button className="send-btn" onClick={() =>navigate("/support")}>
+            Help
+          </button>
                     {/* Notifications Button */}
           <NotificationToggle /> 
         </div>
